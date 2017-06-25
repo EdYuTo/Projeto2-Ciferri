@@ -98,6 +98,7 @@ int read_csv_delim() {
 
         /* escreve o delimitador (!) */
         fwrite(&delim, sizeof(char), 1, fpout);
+        fwrite(&delim, sizeof(char), 1, fpout);
 
         /* liberando strings lidas
         apos passadas ao arquivo */
@@ -136,7 +137,7 @@ void read_out_delim() {
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         r = criar_registro();
 
@@ -182,6 +183,7 @@ void read_out_delim() {
 
         /* leitura do delimitador */
         fread(&delim, sizeof(char), 1, fp);
+        fread(&delim, sizeof(char), 1, fp);
 
         imprimir_registro(r);
         apagar_registro(&r);
@@ -215,7 +217,7 @@ void busca_documento_delim(char *chave) {
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         /* aloca e le o documento do arquivo */
         try = (char *) malloc (sizeof(char)*tamfixo);
@@ -265,6 +267,7 @@ void busca_documento_delim(char *chave) {
             fread(r->uf, sizeof(char), tam, fp);
 
             fread(&delim, sizeof(char), 1, fp);
+            fread(&delim, sizeof(char), 1, fp);
 
             imprimir_registro(r);
             apagar_registro(&r);
@@ -275,11 +278,19 @@ void busca_documento_delim(char *chave) {
 
         }
         else {
+            int n_delim = 0;
+
             /* caso o campo lido seja diferente do
             buscado, o ponteiro avança até o fim do
             registro '#' */
-            while (c != '#' && ftell(fp) != filesize)
+            while (n_delim < 2 && ftell(fp) < filesize) {
                 fread(&c, sizeof(char), 1, fp);
+
+                if(c == '#')
+                    n_delim ++;
+                else if (n_delim > 0)
+                    n_delim = 0;
+            }
             c = 0;
             free(try);
         }
@@ -312,7 +323,7 @@ void busca_dominio_delim(char *chave) {
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         fseek(fp, pos, SEEK_CUR);
 
@@ -364,6 +375,7 @@ void busca_dominio_delim(char *chave) {
             fread(r->uf, sizeof(char), tam, fp);
 
             fread(&delim, sizeof(char), 1, fp);
+            fread(&delim, sizeof(char), 1, fp);
 
             fclose(fp);
 
@@ -372,9 +384,16 @@ void busca_dominio_delim(char *chave) {
             return;
         }
         else {
+            int n_delim = 0;
+
             /* anda ate encontrar o '#' */
-            while (c != '#' && ftell(fp) != filesize)
+            while (n_delim < 2 && ftell(fp) < filesize) {
                 fread(&c, sizeof(char), 1, fp);
+                if (c == '#')
+                    n_delim++;
+                else if(n_delim > 0)
+                    n_delim = 0;
+            }
             c = 0;
             free(try);
         }
@@ -412,7 +431,7 @@ void busca_cidade_delim(char *chave) {
         return;
     }
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         fseek(fp, pos, SEEK_CUR);
 
@@ -472,6 +491,7 @@ void busca_cidade_delim(char *chave) {
             fread(r->uf, sizeof(char), tam, fp);
 
             fread(&delim, sizeof(char), 1, fp);
+            fread(&delim, sizeof(char), 1, fp);
 
             imprimir_registro(r);
             apagar_registro(&r);
@@ -482,11 +502,20 @@ void busca_cidade_delim(char *chave) {
 
         }
         else {
+            int n_delim = 0;
+
             /* caso o campo lido seja diferente do
             buscado, o ponteiro avança até o fim do
             registro '#' */
-            while (c != '#' && ftell(fp) != filesize)
+            while (n_delim < 2 && ftell(fp) < filesize) {
+                int aux = ftell(fp);
                 fread(&c, sizeof(char), 1, fp);
+
+                if (c == '#')
+                    n_delim++;
+                else if(n_delim > 0)
+                    n_delim = 0;
+            }
             c = 0;
             free(try);
         }
@@ -523,7 +552,7 @@ void busca_uf_delim(char *chave) {
         return;
     }
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         fseek(fp, pos, SEEK_CUR);
 
@@ -583,6 +612,7 @@ void busca_uf_delim(char *chave) {
             fread(r->uf, sizeof(char), tam, fp);
 
             fread(&delim, sizeof(char), 1, fp);
+            fread(&delim, sizeof(char), 1, fp);
 
             imprimir_registro(r);
             apagar_registro(&r);
@@ -593,11 +623,18 @@ void busca_uf_delim(char *chave) {
 
         }
         else {
+            int n_delim = 0;
             /* caso o campo lido seja diferente do
             buscado, o ponteiro avança até o fim do
             registro '#' */
-            while (c != '#' && ftell(fp) != filesize)
+            while (n_delim < 2 && ftell(fp) < filesize) {
                 fread(&c, sizeof(char), 1, fp);
+
+                if (c == '#')
+                    n_delim++;
+                else if(n_delim > 0)
+                    n_delim = 0;
+            }
             c = 0;
             free(try);
         }
@@ -626,7 +663,7 @@ void busca_ticket_delim(int chave) {
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         fseek(fp, pos, SEEK_CUR);
 
@@ -674,6 +711,7 @@ void busca_ticket_delim(int chave) {
             fread(r->uf, sizeof(char), tam, fp);
 
             fread(&delim, sizeof(char), 1, fp);
+            fread(&delim, sizeof(char), 1, fp);
 
             fclose(fp);
 
@@ -683,9 +721,16 @@ void busca_ticket_delim(int chave) {
         }
 
         else {
+            int n_delim = 0;
             /* anda ate encontrar o '#' */
-            while (c != '#' && ftell(fp) != filesize)
+            while (n_delim < 2 && ftell(fp) < filesize) {
                 fread(&c, sizeof(char), 1, fp);
+
+                if (c == '#')
+                    n_delim++;
+                else if(n_delim > 0)
+                    n_delim = 0;
+            }
             c = 0;
         }
     }
@@ -720,7 +765,7 @@ void busca_nome_delim(char *chave) {
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    while (ftell(fp) != filesize) {
+    while (ftell(fp) < filesize) {
 
         /* passa o ponteiro pelos campos fixos  */
         fseek(fp, pos, SEEK_CUR);
@@ -780,6 +825,7 @@ void busca_nome_delim(char *chave) {
             fread(r->uf, sizeof(char), tam, fp);
 
             fread(&delim, sizeof(char), 1, fp);
+            fread(&delim, sizeof(char), 1, fp);
 
             imprimir_registro(r);
             apagar_registro(&r);
@@ -789,14 +835,23 @@ void busca_nome_delim(char *chave) {
             cont++;
 
         }
+        else {
 
-        /* caso o campo lido seja diferente do
-        buscado, o ponteiro avança até o fim do
-        registro '#' */
-        while (c != '#' && ftell(fp) != filesize)
-            fread(&c, sizeof(char), 1, fp);
-        c = 0;
-        free(try);
+            int n_delim = 0;
+            /* caso o campo lido seja diferente do
+            buscado, o ponteiro avança até o fim do
+            registro '#' */
+            while (n_delim < 2 && ftell(fp) < filesize) {
+                fread(&c, sizeof(char), 1, fp);
+
+                if (c == '#')
+                    n_delim++;
+                else if (n_delim > 0)
+                    n_delim = 0;
+            }
+            c = 0;
+            free(try);
+        }
     }
     fclose(fp);
 
