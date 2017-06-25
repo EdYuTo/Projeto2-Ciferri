@@ -117,6 +117,70 @@ int read_csv_delim() {
     return 1;
 }
 
+REG *read_register(FILE *fp){
+    REG *r;
+    int tam, ticket;
+    char *str;
+    char aux[500];
+    int tamfixo = 20;
+    char delim;
+    int filesize;
+
+    int n_delim = 0;
+
+    r = criar_registro();
+
+    while(n_delim < 2) {
+        /* lendo o documento e salvando em r.documento */
+        fread(&aux, sizeof(char), tamfixo, fp);
+        memcpy(r->doc, aux, tamfixo);
+
+        /* lendo dataHoraCadastro e salvando na struct r */
+        fread(&aux, sizeof(char), tamfixo, fp);
+        memcpy(r->dataHoraCadastro, aux, tamfixo);
+
+        /* lendo dataHoraAtualiza e salvando na struct r */
+        fread(&aux, sizeof(char), tamfixo, fp);
+        memcpy(r->dataHoraAtualiza, aux, tamfixo);
+
+        /* lendo o numero do ticket */
+        fread(&ticket, sizeof(int), 1, fp);
+        r->ticket = ticket;
+
+        /* lendo e salvando o dominio */
+        fread(&tam, sizeof(int), 1, fp);
+        fread(&aux, sizeof(char), tam, fp);
+        r->dominio = (char *) malloc(sizeof(char) * tam);
+        strcpy(r->dominio, aux);
+
+        /* lendo e salvando o nome */
+        fread(&tam, sizeof(int), 1, fp);
+        fread(&aux, sizeof(char), tam, fp);
+        r->nome = (char *) malloc(sizeof(char) * tam);
+        strcpy(r->nome, aux);
+
+        /* lendo e salvando a cidade */
+        fread(&tam, sizeof(int), 1, fp);
+        fread(&aux, sizeof(char), tam, fp);
+        r->cidade = (char *) malloc(sizeof(char) * tam);
+        strcpy(r->cidade, aux);
+
+        /* lendo e salvando a uf */
+        fread(&tam, sizeof(int), 1, fp);
+        fread(&aux, sizeof(char), tam, fp);
+        r->uf = (char *) malloc(sizeof(char) * tam);
+        strcpy(r->uf, aux);
+
+        /* leitura do delimitador */
+        fread(&delim, sizeof(char), 1, fp);
+        n_delim++;
+        fread(&delim, sizeof(char), 1, fp);
+        n_delim++;
+    }
+    return r;
+
+}
+
 void read_out_delim() {
 
     FILE *fp = fopen("regdelim.bin", "r+");
@@ -138,55 +202,10 @@ void read_out_delim() {
     fseek(fp, 0, SEEK_SET);
 
     while (ftell(fp) < filesize) {
-
-        r = criar_registro();
-
-        /* lendo o documento e salvando em r.documento */
-        fread(&aux, sizeof(char), tamfixo, fp);
-        memcpy(r->doc, aux, tamfixo);
-
-        /* lendo dataHoraCadastro e salvando na struct r */
-        fread(&aux, sizeof(char), tamfixo, fp);
-        memcpy(r->dataHoraCadastro, aux, tamfixo);
-
-        /* lendo dataHoraAtualiza e salvando na struct r */
-        fread(&aux, sizeof(char), tamfixo, fp);
-        memcpy(r->dataHoraAtualiza, aux, tamfixo);
-
-        /* lendo o numero do ticket */
-        fread(&ticket, sizeof(int), 1, fp);
-        r->ticket = ticket;
-
-        /* lendo e salvando o dominio */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->dominio = (char *) malloc (sizeof(char)*tam);
-        strcpy(r->dominio, aux);
-
-        /* lendo e salvando o nome */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->nome = (char *) malloc (sizeof(char)*tam);
-        strcpy(r->nome, aux);
-
-        /* lendo e salvando a cidade */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->cidade = (char *) malloc (sizeof(char)*tam);
-        strcpy(r->cidade, aux);
-
-        /* lendo e salvando a uf */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->uf = (char *) malloc (sizeof(char)*tam);
-        strcpy(r->uf, aux);
-
-        /* leitura do delimitador */
-        fread(&delim, sizeof(char), 1, fp);
-        fread(&delim, sizeof(char), 1, fp);
-
+        r = read_register(fp);
         imprimir_registro(r);
         apagar_registro(&r);
+
         printf("Digite ENTER para continuar a impressão");
         char *aux = readLine(stdin, '\n'); //espera o ENTER
         free(aux);
@@ -236,41 +255,10 @@ void busca_documento_delim(char *chave) {
             if (ftell(fp) == 1) fseek(fp, 0, SEEK_SET);
             c = 0;
 
-            r = criar_registro();
-
-            /* leitrua de todos os campos fixos e
-            armazenamento na struct registro */
-            fread(r->doc, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-            fread(&r->ticket, sizeof(int), 1, fp);
-
-            /* leitura do tamanho do dominio e
-            seu conteúdo */
-            fread(&tam, sizeof(int), 1, fp);
-            r->dominio = (char *) malloc (sizeof(char)*tam);
-            fread(r->dominio, sizeof(char), tam, fp);
-
-            /* leitura do nome do registro */
-            fread(&tam, sizeof(int), 1, fp);
-            r->nome = (char *) malloc (sizeof(char)*tam);
-            fread(r->nome, sizeof(char), tam, fp);
-
-            /* leitura do nome da cidade */
-            fread(&tam, sizeof(int), 1, fp);
-            r->cidade = (char *) malloc (sizeof(char)*tam);
-            fread(r->cidade, sizeof(char), tam, fp);
-
-            /* leitura da UF */
-            fread(&tam, sizeof(int), 1, fp);
-            r->uf = (char *) malloc (sizeof(char)*tam);
-            fread(r->uf, sizeof(char), tam, fp);
-
-            fread(&delim, sizeof(char), 1, fp);
-            fread(&delim, sizeof(char), 1, fp);
-
+            r = read_register(fp);
             imprimir_registro(r);
             apagar_registro(&r);
+
             printf("Digite ENTER para continuar a impressão");
             char *aux = readLine(stdin, '\n'); //espera o ENTER
             free(aux);
@@ -344,39 +332,7 @@ void busca_dominio_delim(char *chave) {
             }
             if (ftell(fp) == 1) fseek(fp, 0, SEEK_SET);
 
-            REG *r = criar_registro();
-
-            /* leitrua de todos os campos fixos e
-            armazenamento na struct registro */
-            fread(r->doc, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-            fread(&r->ticket, sizeof(int), 1, fp);
-
-            /* leitura do tamanho do dominio e
-            seu conteúdo */
-            fread(&tam, sizeof(int), 1, fp);
-            r->dominio = (char *) malloc (sizeof(char)*tam);
-            fread(r->dominio, sizeof(char), tam, fp);
-
-            /* leitura do nome do registro */
-            fread(&tam, sizeof(int), 1, fp);
-            r->nome = (char *) malloc (sizeof(char)*tam);
-            fread(r->nome, sizeof(char), tam, fp);
-
-            /* leitura do nome da cidade */
-            fread(&tam, sizeof(int), 1, fp);
-            r->cidade = (char *) malloc (sizeof(char)*tam);
-            fread(r->cidade, sizeof(char), tam, fp);
-
-            /* leitura da UF */
-            fread(&tam, sizeof(int), 1, fp);
-            r->uf = (char *) malloc (sizeof(char)*tam);
-            fread(r->uf, sizeof(char), tam, fp);
-
-            fread(&delim, sizeof(char), 1, fp);
-            fread(&delim, sizeof(char), 1, fp);
-
+            REG *r = read_register(fp);
             fclose(fp);
 
             imprimir_registro(r);
@@ -460,41 +416,10 @@ void busca_cidade_delim(char *chave) {
             if (ftell(fp) == 1) fseek(fp, 0, SEEK_SET);
             c = 0;
 
-            r = criar_registro();
-
-            /* leitrua de todos os campos fixos e
-            armazenamento na struct registro */
-            fread(r->doc, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-            fread(&r->ticket, sizeof(int), 1, fp);
-
-            /* leitura do tamanho do dominio e
-            seu conteúdo */
-            fread(&tam, sizeof(int), 1, fp);
-            r->dominio = (char *) malloc (sizeof(char)*tam);
-            fread(r->dominio, sizeof(char), tam, fp);
-
-            /* leitura do nome do registro */
-            fread(&tam, sizeof(int), 1, fp);
-            r->nome = (char *) malloc (sizeof(char)*tam);
-            fread(r->nome, sizeof(char), tam, fp);
-
-            /* leitura do nome da cidade */
-            fread(&tam, sizeof(int), 1, fp);
-            r->cidade = (char *) malloc (sizeof(char)*tam);
-            fread(r->cidade, sizeof(char), tam, fp);
-
-            /* leitura da UF */
-            fread(&tam, sizeof(int), 1, fp);
-            r->uf = (char *) malloc (sizeof(char)*tam);
-            fread(r->uf, sizeof(char), tam, fp);
-
-            fread(&delim, sizeof(char), 1, fp);
-            fread(&delim, sizeof(char), 1, fp);
-
+            r = read_register(fp);
             imprimir_registro(r);
             apagar_registro(&r);
+
             printf("Digite ENTER para continuar a impressão");
             char *aux = readLine(stdin, '\n'); //espera o ENTER
             free(aux);
@@ -581,41 +506,10 @@ void busca_uf_delim(char *chave) {
             if (ftell(fp) == 1) fseek(fp, 0, SEEK_SET);
             c = 0;
 
-            r = criar_registro();
-
-            /* leitrua de todos os campos fixos e
-            armazenamento na struct registro */
-            fread(r->doc, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-            fread(&r->ticket, sizeof(int), 1, fp);
-
-            /* leitura do tamanho do dominio e
-            seu conteúdo */
-            fread(&tam, sizeof(int), 1, fp);
-            r->dominio = (char *) malloc (sizeof(char)*tam);
-            fread(r->dominio, sizeof(char), tam, fp);
-
-            /* leitura do nome do registro */
-            fread(&tam, sizeof(int), 1, fp);
-            r->nome = (char *) malloc (sizeof(char)*tam);
-            fread(r->nome, sizeof(char), tam, fp);
-
-            /* leitura do nome da cidade */
-            fread(&tam, sizeof(int), 1, fp);
-            r->cidade = (char *) malloc (sizeof(char)*tam);
-            fread(r->cidade, sizeof(char), tam, fp);
-
-            /* leitura da UF */
-            fread(&tam, sizeof(int), 1, fp);
-            r->uf = (char *) malloc (sizeof(char)*tam);
-            fread(r->uf, sizeof(char), tam, fp);
-
-            fread(&delim, sizeof(char), 1, fp);
-            fread(&delim, sizeof(char), 1, fp);
-
+            r = read_register(fp);
             imprimir_registro(r);
             apagar_registro(&r);
+
             printf("Digite ENTER para continuar a impressão");
             char *aux = readLine(stdin, '\n'); //espera o ENTER
             free(aux);
@@ -679,40 +573,7 @@ void busca_ticket_delim(int chave) {
             }
             if (ftell(fp) == 1) fseek(fp, 0, SEEK_SET);
 
-            REG *r = criar_registro();
-
-            /* leitrua de todos os campos fixos e
-            armazenamento na struct registro */
-            fread(r->doc, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-            r->ticket = try;
-            fseek(fp, sizeof(int), SEEK_CUR);
-
-            /* leitura do tamanho do dominio e
-            seu conteúdo */
-            fread(&tam, sizeof(int), 1, fp);
-            r->dominio = (char *) malloc (sizeof(char)*tam);
-            fread(r->dominio, sizeof(char), tam, fp);
-
-            /* leitura do nome do registro */
-            fread(&tam, sizeof(int), 1, fp);
-            r->nome = (char *) malloc (sizeof(char)*tam);
-            fread(r->nome, sizeof(char), tam, fp);
-
-            /* leitura do nome da cidade */
-            fread(&tam, sizeof(int), 1, fp);
-            r->cidade = (char *) malloc (sizeof(char)*tam);
-            fread(r->cidade, sizeof(char), tam, fp);
-
-            /* leitura da UF */
-            fread(&tam, sizeof(int), 1, fp);
-            r->uf = (char *) malloc (sizeof(char)*tam);
-            fread(r->uf, sizeof(char), tam, fp);
-
-            fread(&delim, sizeof(char), 1, fp);
-            fread(&delim, sizeof(char), 1, fp);
-
+            REG *r = read_register(fp);
             fclose(fp);
 
             imprimir_registro(r);
@@ -794,41 +655,10 @@ void busca_nome_delim(char *chave) {
             if (ftell(fp) == 1) fseek(fp, 0, SEEK_SET);
             c = 0;
 
-            r = criar_registro();
-
-            /* leitrua de todos os campos fixos e
-            armazenamento na struct registro */
-            fread(r->doc, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-            fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-            fread(&r->ticket, sizeof(int), 1, fp);
-
-            /* leitura do tamanho do dominio e
-            seu conteúdo */
-            fread(&tam, sizeof(int), 1, fp);
-            r->dominio = (char *) malloc (sizeof(char)*tam);
-            fread(r->dominio, sizeof(char), tam, fp);
-
-            /* leitura do nome do registro */
-            fread(&tam, sizeof(int), 1, fp);
-            r->nome = (char *) malloc (sizeof(char)*tam);
-            fread(r->nome, sizeof(char), tam, fp);
-
-            /* leitura do nome da cidade */
-            fread(&tam, sizeof(int), 1, fp);
-            r->cidade = (char *) malloc (sizeof(char)*tam);
-            fread(r->cidade, sizeof(char), tam, fp);
-
-            /* leitura da UF */
-            fread(&tam, sizeof(int), 1, fp);
-            r->uf = (char *) malloc (sizeof(char)*tam);
-            fread(r->uf, sizeof(char), tam, fp);
-
-            fread(&delim, sizeof(char), 1, fp);
-            fread(&delim, sizeof(char), 1, fp);
-
+            r = read_register(fp);
             imprimir_registro(r);
             apagar_registro(&r);
+
             printf("Digite ENTER para continuar a impressão");
             char *aux = readLine(stdin, '\n'); //espera o ENTER
             free(aux);
@@ -879,9 +709,17 @@ void busca_n_delim(int n) {
     /* anda ate o numero de delimitadores
     encontrados for igual ao numero do
     registro buscado */
+    int n_delim = 0;
     while (delim != n) {
         fread(&c, sizeof(char), 1, fp);
-        if (c == '#') delim++;
+
+        if (c == '#') n_delim++;
+        else if(n_delim > 0) n_delim = 0;
+
+        if(n_delim >= 2){
+            delim++;
+            n_delim = 0;
+        }
         if (ftell(fp) == filesize) break;
     }
     if (ftell(fp) == filesize) {
@@ -890,30 +728,7 @@ void busca_n_delim(int n) {
         return;
     }
 
-    /* salva o registro e retorna */
-    REG *r = criar_registro();
-
-    fread(r->doc, sizeof(char), tamfixo, fp);
-    fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-    fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-    fread(&r->ticket, sizeof(int), 1, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->dominio = (char *) malloc (sizeof(char)*tam);
-    fread(r->dominio, sizeof(char), tam, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->nome = (char *) malloc (sizeof(char)*tam);
-    fread(r->nome, sizeof(char), tam, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->cidade = (char *) malloc (sizeof(char)*tam);
-    fread(r->cidade, sizeof(char), tam, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->uf = (char *) malloc (sizeof(char)*tam);
-    fread(r->uf, sizeof(char), tam, fp);
-
+    REG *r = read_register(fp);
     fclose(fp);
 
     imprimir_registro(r);
@@ -951,9 +766,17 @@ void busca_campo_registro_delim(int campo, int reg) {
     /* anda ate o numero de delimitadores
     encontrados for igual ao numero do
     registro buscado */
+    int n_delim = 0;
     while (delim != reg) {
         fread(&c, sizeof(char), 1, fp);
-        if (c == '#') delim++;
+
+        if (c == '#') n_delim++;
+        else if(n_delim > 0) n_delim = 0;
+
+        if(n_delim >= 2){
+            n_delim = 0;
+            delim++;
+        }
         if (ftell(fp) == filesize) break;
     }
     if (ftell(fp) == filesize) {
@@ -962,29 +785,7 @@ void busca_campo_registro_delim(int campo, int reg) {
         return;
     }
 
-    /* salva o registro e retorna */
-    REG *r = criar_registro();
-
-    fread(r->doc, sizeof(char), tamfixo, fp);
-    fread(r->dataHoraCadastro, sizeof(char), tamfixo, fp);
-    fread(r->dataHoraAtualiza, sizeof(char), tamfixo, fp);
-    fread(&r->ticket, sizeof(int), 1, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->dominio = (char *) malloc (sizeof(char)*tam);
-    fread(r->dominio, sizeof(char), tam, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->nome = (char *) malloc (sizeof(char)*tam);
-    fread(r->nome, sizeof(char), tam, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->cidade = (char *) malloc (sizeof(char)*tam);
-    fread(r->cidade, sizeof(char), tam, fp);
-
-    fread(&tam, sizeof(int), 1, fp);
-    r->uf = (char *) malloc (sizeof(char)*tam);
-    fread(r->uf, sizeof(char), tam, fp);
+    REG *r = read_register(fp);
 
     switch(campo) {
         case 1:
