@@ -8,7 +8,9 @@ arquivo de saida */
 int read_csv_delim() {
 
     FILE *fpin = fopen("turmaA-dadosDominios.csv", "r+");
-    FILE *fpout = fopen("regdelim.bin", "w+");
+    FILE *fpout1 = fopen("best.bin", "w+");
+    FILE *fpout2 = fopen("worst.bin", "w+");
+    FILE *fpout3 = fopen("first.bin", "w+");
     char *dominio;
     char *documento;
     char doc[20];
@@ -49,56 +51,88 @@ int read_csv_delim() {
         tira_acento(documento);
         if (!strcmp(documento, "null")) doc[0] = '\0';
         else strtoarr(documento,doc, tamfixo);
-        fwrite(doc, sizeof(char), tamfixo, fpout);
+        fwrite(doc, sizeof(char), tamfixo, fpout1);
+        fwrite(doc, sizeof(char), tamfixo, fpout2);
+        fwrite(doc, sizeof(char), tamfixo, fpout3);
 
         /* escrita de dataHoraCadastro e tratamento
         caso "null" */
         tira_acento(cadastro);
         if (!strcmp(cadastro, "null"))  DHC[0] = '\0';
         else strtoarr(cadastro, DHC, tamfixo);
-        fwrite(DHC, sizeof(char), tamfixo, fpout);
+        fwrite(DHC, sizeof(char), tamfixo, fpout1);
+        fwrite(DHC, sizeof(char), tamfixo, fpout2);
+        fwrite(DHC, sizeof(char), tamfixo, fpout3);
 
         /* escrita de dataHoraAtualiza */
         tira_acento(atualiza);
         if (!strcmp(atualiza, "null"))  DHA[0] = '\0';
         else strtoarr(atualiza, DHA, tamfixo);
-        fwrite(DHA, sizeof(char), tamfixo, fpout);
+        fwrite(DHA, sizeof(char), tamfixo, fpout1);
+        fwrite(DHA, sizeof(char), tamfixo, fpout2);
+        fwrite(DHA, sizeof(char), tamfixo, fpout3);
 
         /* escrita do valor do ticket */
-        fwrite(&ticket, sizeof(int), 1, fpout);
+        fwrite(&ticket, sizeof(int), 1, fpout1);
+        fwrite(&ticket, sizeof(int), 1, fpout2);
+        fwrite(&ticket, sizeof(int), 1, fpout3);
 
         /* escrita do tamanho de dominio e
         seu conteudo */
         if (!strcmp(dominio, "null"))   dominio[0] = '\0';
         tira_acento(dominio);
         tam = strlen(dominio)+1;
-        fwrite(&tam, sizeof(int), 1, fpout);
-        fwrite(dominio, sizeof(char), tam, fpout);
+        fwrite(&tam, sizeof(int), 1, fpout1);
+        fwrite(&tam, sizeof(int), 1, fpout2);
+        fwrite(&tam, sizeof(int), 1, fpout3);
+        fwrite(dominio, sizeof(char), tam, fpout1);
+        fwrite(dominio, sizeof(char), tam, fpout2);
+        fwrite(dominio, sizeof(char), tam, fpout3);
 
         /* escrita do tamanho do nome e seu conteudo */
         if (!strcmp(nome, "null"))  nome[0] = '\0';
         tira_acento(nome);
         tam = strlen(nome)+1;
-        fwrite(&tam, sizeof(int), 1, fpout);
-        fwrite(nome, sizeof(char), tam, fpout);
+        fwrite(&tam, sizeof(int), 1, fpout1);
+        fwrite(&tam, sizeof(int), 1, fpout2);
+        fwrite(&tam, sizeof(int), 1, fpout3);
+        fwrite(nome, sizeof(char), tam, fpout1);
+        fwrite(nome, sizeof(char), tam, fpout2);
+        fwrite(nome, sizeof(char), tam, fpout3);
 
         /* tamanho e conteudo de cidade */
         if (!strcmp(cidade, "null"))    cidade[0] = '\0';
         tira_acento(cidade);
         tam = strlen(cidade)+1;
-        fwrite(&tam, sizeof(int), 1, fpout);
-        fwrite(cidade, sizeof(char), tam, fpout);
+        fwrite(&tam, sizeof(int), 1, fpout1);
+        fwrite(&tam, sizeof(int), 1, fpout2);
+        fwrite(&tam, sizeof(int), 1, fpout3);
+
+        fwrite(cidade, sizeof(char), tam, fpout1);
+        fwrite(cidade, sizeof(char), tam, fpout2);
+        fwrite(cidade, sizeof(char), tam, fpout3);
 
         /* escrita de UF */
         if (!strcmp(UF, "null"))    UF[0] = '\0';
         tira_acento(UF);
         tam = strlen(UF)+1;
-        fwrite(&tam, sizeof(int), 1, fpout);
-        fwrite(UF, sizeof(char), tam, fpout);
+        fwrite(&tam, sizeof(int), 1, fpout1);
+        fwrite(&tam, sizeof(int), 1, fpout2);
+        fwrite(&tam, sizeof(int), 1, fpout3);
+
+        fwrite(UF, sizeof(char), tam, fpout1);
+        fwrite(UF, sizeof(char), tam, fpout2);
+        fwrite(UF, sizeof(char), tam, fpout3);
 
         /* escreve o delimitador (!) */
-        fwrite(&delim, sizeof(char), 1, fpout);
-        fwrite(&delim, sizeof(char), 1, fpout);
+        fwrite(&delim, sizeof(char), 1, fpout1);
+        fwrite(&delim, sizeof(char), 1, fpout1);
+        
+        fwrite(&delim, sizeof(char), 1, fpout2);
+        fwrite(&delim, sizeof(char), 1, fpout2);
+        
+        fwrite(&delim, sizeof(char), 1, fpout3);
+        fwrite(&delim, sizeof(char), 1, fpout3);
 
         /* liberando strings lidas
         apos passadas ao arquivo */
@@ -112,7 +146,9 @@ int read_csv_delim() {
     }
 
     fclose (fpin);
-    fclose (fpout);
+    fclose (fpout1);
+    fclose (fpout2);
+    fclose (fpout3);
 
     return 1;
 }
