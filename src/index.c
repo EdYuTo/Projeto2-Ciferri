@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <utils.h>
 #include <heap.h>
-#include "utils.h"
 
 int create_index(char *filename) {
 
@@ -69,3 +68,40 @@ int create_index(char *filename) {
 	return 1;
 }
 
+INDEX **read_index_file(char *filename, int *nIndex){
+	if(filename != NULL) {
+		filename = makeIndex(filename);
+
+		FILE *fp = fopen(filename, "r+");
+		int status, filesize, counter = 0;
+		INDEX **indices = NULL;
+
+		if(fp != NULL){
+			fread(&status, sizeof(int), 1, fp);
+
+			if(status != 0){
+				create_index(filename);
+			}
+
+			fseek(fp, 0, SEEK_END);
+			filesize = ftell(fp);
+			fseek(fp, 0, SEEK_SET);
+
+			status = 1;
+			fwrite(&status, sizeof(int), 1, fp);
+
+			while(ftell(fp) < filesize){
+				indices = realloc(indices, sizeof(INDEX*) * (counter + 1));
+				indices[counter] = criar_index();
+
+				fread(&(indices[counter]->ticket), sizeof(int), 1, fp);
+				fread(&(indices[counter]->byteOffset), sizeof(int), 1, fp);
+
+				counter++;
+			}
+		}
+		*nIndex = counter;
+		return indices;
+	}
+	return NULL;
+}
