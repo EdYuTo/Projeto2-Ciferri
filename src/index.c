@@ -1,18 +1,20 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "utils.h"
 
-int create_index() {
+int create_index(char *filename) {
 
-	FILE *fpin = fopen("first.bin", "r+");
-	FILE *fpout1 = fopen("best.idx", "w+");
-	FILE *fpout2 = fopen("worst.idx", "w+");
-	FILE *fpout3 = fopen("first.idx", "w+");
+	FILE *fpin = fopen(filename, "r+");
+	FILE *fpout;
 	int filesize;
 	int offset;
 	int ticket;
 	int n_delim;
 	char c;
-	const char delim = '#';
+	char *idx_file;
+
+	idx_file = makeIndex(filename);
+	fpout = fopen(idx_file, "w+");
 
 	if (fpin == NULL) {
 		printf("Erro! Não foi possível abrir o arquivo de dados\n");
@@ -30,22 +32,9 @@ int create_index() {
 
 		fread(&ticket, sizeof(int), 1, fpin);
 
-		fwrite(&ticket, sizeof(int), 1, fpout1);
-		fwrite(&ticket, sizeof(int), 1, fpout2);
-		fwrite(&ticket, sizeof(int), 1, fpout3);
+		fwrite(&ticket, sizeof(int), 1, fpout);
 		
-		fwrite(&offset, sizeof(int), 1, fpout1);
-		fwrite(&offset, sizeof(int), 1, fpout2);
-		fwrite(&offset, sizeof(int), 1, fpout3);
-
-		fwrite(&delim, sizeof(char), 1, fpout1);
-		fwrite(&delim, sizeof(char), 1, fpout1);
-
-		fwrite(&delim, sizeof(char), 1, fpout2);
-		fwrite(&delim, sizeof(char), 1, fpout2);
-		
-		fwrite(&delim, sizeof(char), 1, fpout3);
-		fwrite(&delim, sizeof(char), 1, fpout3);
+		fwrite(&offset, sizeof(int), 1, fpout);
 
 		while (n_delim < 2 && ftell(fpin) < filesize) {
             fread(&c, sizeof(char), 1, fpin);
@@ -58,10 +47,9 @@ int create_index() {
 		n_delim = 0;
 	}
 
+	free(idx_file);
 	fclose(fpin);
-	fclose(fpout1);
-	fclose(fpout2);
-	fclose(fpout3);
+	fclose(fpout);
 
 	return 1;
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "myregex.h"
 #include "../include/utils.h"
 
 char *readLine(FILE *fp, char delim) {
@@ -260,4 +261,22 @@ void imprimir_vetor_registro(REG *reg, int size){
             free(aux);
         }
     }
+}
+
+/* pega a string do arquivo.bin e  */
+char *makeIndex(char *string) {
+
+    char **s = match(string, "^(.*).bin$", 2);
+    char *idx;
+
+    idx = (char *) malloc (sizeof(char)*(strlen(s[1]+5)));
+    strcpy(idx, s[1]);
+
+    strcat(idx,".idx");
+
+    free(s[0]);
+    free(s[1]);
+    free(s);
+
+    return idx;
 }
