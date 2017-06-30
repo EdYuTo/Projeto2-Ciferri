@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <utils.h>
 #include "myregex.h"
 #include "../include/utils.h"
 
@@ -279,4 +280,22 @@ char *makeIndex(char *string) {
     free(s);
 
     return idx;
+}
+
+INDEX *criar_index(){
+    INDEX *index = (INDEX*) malloc(sizeof(INDEX));
+
+    if(index != NULL){
+        index->ticket = 0;
+        index->byteOffset = 0;
+    }
+
+    return index;
+}
+
+void apagar_index(INDEX **index){
+    if(index != NULL && (*index) != NULL){
+        free(*index);
+        *index = NULL;
+    }
 }

@@ -16,6 +16,14 @@ typedef struct {
 } REG;
 
 /**
+ * Struct do registro dos arquivos de indice
+ */
+typedef struct {
+    int ticket;
+    int byteOffset;
+} INDEX;
+
+/**
  * Cria um registro com os campos vazios
  * @return Ponteiro para o registro criado
  */
@@ -82,5 +90,12 @@ void strTolower(char *string);
 * @param string - nome do arquivo .bin
 */
 char *makeIndex(char *string);
+
+/**
+ * Funçao que cria um indice
+ */
+INDEX *criar_index();
+
+void apagar_index(INDEX **index);
 
 #endif //PROJETO1_CIFERRI_UTILS_H

@@ -1,15 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <utils.h>
+#include <heap.h>
 #include "utils.h"
 
 int create_index(char *filename) {
 
 	FILE *fpin = fopen(filename, "r+");
 	FILE *fpout;
-	int filesize;
-	int offset;
-	int ticket;
-	int n_delim;
+	INDEX **indices = NULL;
+	int filesize, counter = 0;
+	int n_delim, i;
 	char c;
 	char *idx_file;
 
@@ -21,20 +22,21 @@ int create_index(char *filename) {
 		return 0;
 	}
 
+
 	fseek(fpin, 0, SEEK_END);
 	filesize = ftell(fpin);
 	fseek(fpin, 0, SEEK_SET);
 
 	while (ftell(fpin) != filesize) {
+		indices = realloc(indices, sizeof(INDEX*) * (counter + 1));
+		indices[counter] = criar_index();
 
-		offset = ftell(fpin);
+		indices[counter]->byteOffset = ftell(fpin);
 		fseek(fpin, 60, SEEK_CUR);
 
-		fread(&ticket, sizeof(int), 1, fpin);
+		fread(&(indices[counter]->ticket), sizeof(int), 1, fpin);
+		counter++;
 
-		fwrite(&ticket, sizeof(int), 1, fpout);
-		
-		fwrite(&offset, sizeof(int), 1, fpout);
 
 		while (n_delim < 2 && ftell(fpin) < filesize) {
             fread(&c, sizeof(char), 1, fpin);
@@ -47,9 +49,23 @@ int create_index(char *filename) {
 		n_delim = 0;
 	}
 
+	//Ordena os indices
+    heap_sort(indices, counter);
+
+	//Escreve registro de cabeçalho
+	int status = 0;
+	fwrite(&status, sizeof(int), 1, fpout);
+
+	//Escreve indices
+	for(i = 0; i < counter; i++) {
+		fwrite(&(indices[i]->ticket), sizeof(int), 1, fpout);
+
+		fwrite(&(indices[i]->byteOffset), sizeof(int), 1, fpout);
+	}
 	free(idx_file);
 	fclose(fpin);
 	fclose(fpout);
 
 	return 1;
 }
+
