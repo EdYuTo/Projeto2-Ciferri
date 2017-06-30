@@ -77,4 +77,10 @@ void strToupper(char *string);
  */
 void strTolower(char *string);
 
+/**
+* Função que gera uma string de arquivo .idx
+* @param string - nome do arquivo .bin
+*/
+char *makeIndex(char *string);
+
 #endif //PROJETO1_CIFERRI_UTILS_H

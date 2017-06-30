@@ -1,6 +1,6 @@
 #ifndef _INDEX_H_
 #define _INDEX_H_
 
-int create_index();
+int create_index(char *filename);
 
 #endif
