@@ -292,7 +292,7 @@ void remove_from_index(INDEX ***vector, int *size, int k) {
     int i;
 
     for (i = k; i < (*size)-1; i++) {
-        vector[i] = vector[i+1];
+        (*vector)[i] = (*vector)[i+1];
     }
     *vector = (INDEX **) realloc (*vector, sizeof(INDEX *)*((*size)-1));
     (*size)--;
