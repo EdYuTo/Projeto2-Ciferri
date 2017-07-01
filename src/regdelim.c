@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <utils.h>
+#include <limits.h>
+
+#define FIRST_FIT 0
+#define BEST_FIT 1
+#define WORST_FIT 2
 
 /* realiza a leitura do arquivo csv e escrita no
 arquivo de saida */
@@ -299,7 +304,7 @@ void remove_from_index(INDEX ***vector, int *size, int k) {
     return;
 }
 
-int remove_record(int ticket, char *file_bin, INDEX ***vector, int *size) {
+int remove_record_no_sort(int ticket, char *file_bin, INDEX ***vector, int *size) {
 
     FILE *fp_bin = fopen(file_bin, "r+");
     int result;
@@ -341,6 +346,82 @@ int remove_record(int ticket, char *file_bin, INDEX ***vector, int *size) {
     /* escreve o offset no cabeçalho */
     fseek(fp_bin, 0, SEEK_SET);
     fwrite(&(*vector)[result]->byteOffset, sizeof(int), 1, fp_bin);
+
+    /* remove do vetor de indices */
+    remove_from_index(vector, size, result);
+
+    fclose(fp_bin);
+
+    return 1;
+}
+
+int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, int *size) {
+
+    FILE *fp_bin = fopen(file_bin, "r+");
+    int result;
+    int rec_size;
+    int head;
+    const char removed = '*';
+
+    if (!fp_bin) {
+        printf("Erro ao abrir o arquivo de dados.\n");
+        return 0;
+    }
+
+    fread(&head, sizeof(int), 1, fp_bin);
+
+    /* busca binaria no vetor de indices */
+    result = binary_search(*vector, ticket, 0, (*size)-1);
+
+    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
+
+    if (result == -1) {
+        printf("Ticket não encontrado.\n");
+        fclose(fp_bin);
+        return 0;
+    }
+
+    /* tamanho do registro a ser removido */
+    rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
+
+    int regSize = -1;
+    int offset = -1;
+    char c;
+    int ant = head;
+    if(head != -1) fseek(fp_bin, head, SEEK_SET);
+
+    /*Procura a posiçao de inserçao na lista*/
+    while(head != -1 || rec_size > regSize){
+        ant = ftell(fp_bin);
+        fread(&c, sizeof(char), 1, fp_bin);
+        fread(&offset, sizeof(int), 1, fp_bin);
+        fread(&regSize, sizeof(char), 1, fp_bin);
+
+        if(offset != -1)
+            fseek(fp_bin, offset, SEEK_SET);
+        else break;
+    }
+
+    fseek(fp_bin, (*vector)[result]->byteOffset, SEEK_SET);
+
+    /* marca como removido, marca o offset do
+    ultimo registro removido e o tamanho do registro
+    recem removido */
+    fwrite(&removed, sizeof(char), 1, fp_bin);
+    fwrite(&offset, sizeof(int), 1, fp_bin);
+    fwrite(&rec_size, sizeof(int), 1, fp_bin);
+
+    /*Insere o registro na lista de registros removidos*/
+    if(ant != head) {
+        fseek(fp_bin, ant, SEEK_SET);
+        fread(&c, sizeof(char), 1, fp_bin);
+        fwrite(&(*vector)[result]->byteOffset, sizeof(int), 1, fp_bin);
+    }
+    /* escreve o offset no cabeçalho se necessario*/
+    else{
+        fseek(fp_bin, 0, SEEK_SET);
+        fwrite(&(*vector)[result]->byteOffset, sizeof(int), 1, fp_bin);
+    }
 
     /* remove do vetor de indices */
     remove_from_index(vector, size, result);

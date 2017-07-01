@@ -65,7 +65,7 @@ int main(int argc, char *argv[]){
 					if(ticket < 0) printf("\nERRO: Digite um valor positivo\n");
 				}
 
-				//remove_record(int ticket, char *file_bin, INDEX **vector, int size);
+				//remove_record_no_sort(int ticket, char *file_bin, INDEX **vector, int size);
 				printOpt();
 				break;
 			case 'I': //Inserção de registros
