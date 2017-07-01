@@ -295,7 +295,7 @@ int record_size(FILE *fp, int offset) {
 void remove_from_index(INDEX ***vector, int *size, int k) {
 
     int i;
-    apagar_index(vector[k]);
+    apagar_index(&((*vector)[k]));
     for (i = k; i < (*size)-1; i++) {
         (*vector)[i] = (*vector)[i+1];
     }
