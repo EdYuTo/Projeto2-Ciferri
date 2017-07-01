@@ -28,11 +28,11 @@ int read_csv_delim() {
     int head = -1;
 
     if (!fpin) {
-        if (!fpout1)
+        if (fpout1)
             fclose(fpout1);
-        if (!fpout2)
+        if (fpout2)
             fclose(fpout2);
-        if (!fpout3)
+        if (fpout3)
             fclose(fpout3);
         return -1;
     }
@@ -179,6 +179,9 @@ REG *read_register(FILE *fp){
     r = criar_registro();
 
     while(n_delim < 2) {
+        /* ignorando o cabecalho */
+        fread(&ticket, sizeof(int), 1, fp);
+        
         /* lendo o documento e salvando em r.documento */
         fread(&aux, sizeof(char), tamfixo, fp);
         memcpy(r->doc, aux, tamfixo);
@@ -248,15 +251,14 @@ void read_out_delim() {
     fseek(fp, 0, SEEK_END);
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-
-    while (ftell(fp) < filesize) {
+    
+    printf("Digite ENTER para comecar a impressão ou ctrl+D para sair");
+    while (ftell(fp) < filesize && fgetc(stdin) != EOF) {
         r = read_register(fp);
         imprimir_registro(r);
         apagar_registro(&r);
 
-        printf("Digite ENTER para continuar a impressão");
-        char *aux = readLine(stdin, '\n'); //espera o ENTER
-        free(aux);
+        printf("Digite ENTER para continuar a impressão ou ctrl+D para sair");
     }
 
     fclose(fp);
