@@ -373,14 +373,14 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
     /* busca binaria no vetor de indices */
     result = binary_search(*vector, ticket, 0, (*size)-1);
 
-    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
-
     if (result == -1) {
         printf("Ticket não encontrado.\n");
         fclose(fp_bin);
         return 0;
     }
 
+    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
+    
     /* tamanho do registro a ser removido */
     rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
 
