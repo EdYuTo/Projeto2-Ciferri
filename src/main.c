@@ -19,7 +19,7 @@
 #include <regdelim.h>
 #include <utils.h>
 
-void printOpt(){
+void printOpt(){ 
 	printf("\nEscolha a operação que deseja realizar\n");
 	if((fopen("best.bin", "rb") == NULL)) printf("   G - Gravação dos dados do arquivo de entrada nos 3 arquivos de saída \n");
 	printf("   R - Remoção de registro\n");
@@ -32,26 +32,33 @@ void printOpt(){
 int main(int argc, char *argv[]){
 	int i, j;
 	int ticket;
+	int nf, nb, nw;
 	char opt;
 	FILE *fileIn = fopen("turmaA-dadosDominios.csv", "r");
+	INDEX **indexF, **indexB, **indexW;
 
 	printOpt();
 
 	while(opt != 'S'){
 		scanf("%c", &opt);
+		opt = toupper(opt);
 		getchar();
 
 		switch(opt){
 			case 'G': //Gravação dos dados nos 3 arquivos de saída com seus respectivos índices
 				if(fopen("best.bin", "rb") == NULL){ //Checa se os arquivos já foram criados
 					read_csv_delim();
-					create_index_file("best.bin");
-					create_index_file("worst.bin");
-					create_index_file("first.bin");
+					create_index_file("first.bin") ? printf("Indice FIRST criado com sucesso!\n") : printf("ERRO: Indice FIRST não foi criado\n");
+					create_index_file("best.bin") ? printf("Indice BEST criado com sucesso!\n") : printf("ERRO: Indice BEST não foi criado\n"); 
+					create_index_file("worst.bin") ? printf("Indice WORST criado com sucesso!\n") : printf("ERRO: Indice WORST não foi criado\n");
 
-					printf("\nDados gravados\n");
+					indexF = read_index_file("first.bin", &nf);
+					indexB = read_index_file("best.bin", &nb);
+					indexW = read_index_file("worst.bin", &nw);
+
+					printf("\n** Todos os dados foram gravados **\n");
 				}else{
-					printf("\nOs arquivos de saída já foram criados\n");
+					printf("\nOs arquivos de saída e de índice já foram criados\n");
 				}
 				printOpt();
 				break;
@@ -65,7 +72,10 @@ int main(int argc, char *argv[]){
 					if(ticket < 0) printf("\nERRO: Digite um valor positivo\n");
 				}
 
-				//remove_record_no_sort(int ticket, char *file_bin, INDEX **vector, int size);
+				remove_record_no_sort(ticket, "first.bin", &indexF, &nf) ? printf("Removido de FIRST com sucesso!\n") : printf("ERRO na remoção de FIRST\n");
+				remove_record_ascending_sort(ticket, "best.bin", &indexB, &nb)  ? printf("Removido de BEST com sucesso!\n") : printf("ERRO na remoção de BEST\n");;
+				remove_record_descending_sort(ticket, "worst.bin", &indexW, &nw)  ? printf("Removido de WORST com sucesso!\n") : printf("ERRO na remoção de WORST\n");;
+
 				printOpt();
 				break;
 			case 'I': //Inserção de registros
