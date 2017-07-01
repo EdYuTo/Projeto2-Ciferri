@@ -27,6 +27,7 @@ void apagar_heap(HEAP** heap){
         for(i = 0; i <= (*heap)->fim; i++){
             apagar_index(&(*heap)->vetor[i]);
         }
+        free((*heap)->vetor);
         free(*heap);
         *heap = NULL;
     }
