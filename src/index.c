@@ -75,7 +75,7 @@ int create_index(char *filename) {
 	return 1;
 }
 
-INDEX **read_index_file(char *filename, int *nIndex){
+INDEX **read_index_file(char *filename, int *nIndices){
 	if(filename != NULL) {
 		filename = makeIndex(filename);
 
@@ -107,8 +107,36 @@ INDEX **read_index_file(char *filename, int *nIndex){
 				counter++;
 			}
 		}
-		*nIndex = counter;
+		fclose(fp);
+
+		*nIndices = counter;
 		return indices;
 	}
 	return NULL;
+}
+
+void write_index_file(INDEX ***indices, int *nIndices, char *filename){
+	if(indices != NULL && *indices != NULL && filename != NULL){
+		int i, status = 0;
+		FILE *fp = fopen(filename, "w+");
+
+		//Escreve registro de cabeçalho
+		fwrite(&status, sizeof(int), 1, fp);
+
+		for(i = 0; i < *nIndices; i++){
+			fwrite(&((*indices)[i]->ticket), sizeof(int), 1, fp);
+			fwrite(&((*indices)[i]->byteOffset), sizeof(int), 1, fp);
+		}
+
+		//Libera o vetor de indices da memoria
+		for(i = 0; i < *nIndices; i++){
+			apagar_index(&(*indices)[i]);
+		}
+		free(*indices);
+		*indices = NULL;
+		*nIndices = 0;
+
+
+		fclose(fp);
+	}
 }
