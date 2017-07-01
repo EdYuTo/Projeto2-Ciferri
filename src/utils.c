@@ -265,7 +265,7 @@ void imprimir_vetor_registro(REG *reg, int size){
 }
 
 /* pega a string do arquivo.bin e  */
-char *makeIndex(char *string) {
+char *makeIndex_filename(char *string) {
 
     char **s = match(string, "^(.*).bin$", 2);
     char *idx;

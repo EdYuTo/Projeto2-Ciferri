@@ -89,7 +89,7 @@ void strTolower(char *string);
 * Função que gera uma string de arquivo .idx
 * @param string - nome do arquivo .bin
 */
-char *makeIndex(char *string);
+char *makeIndex_filename(char *string);
 
 /**
  * Funçao que cria um indice

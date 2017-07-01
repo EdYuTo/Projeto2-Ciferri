@@ -3,7 +3,7 @@
 #include <utils.h>
 #include <heap.h>
 
-int create_index(char *filename) {
+int create_index_file(char *filename) {
 
 	FILE *fpin = fopen(filename, "r+");
 	FILE *fpout;
@@ -14,7 +14,7 @@ int create_index(char *filename) {
 	char *idx_file;
 	int head;
 
-	idx_file = makeIndex(filename);
+	idx_file = makeIndex_filename(filename);
 	fpout = fopen(idx_file, "w+");
 
 	if (fpin == NULL) {
@@ -77,7 +77,7 @@ int create_index(char *filename) {
 
 INDEX **read_index_file(char *filename, int *nIndex){
    if(filename != NULL) {
-      char *name = makeIndex(filename);
+      char *name = makeIndex_filename(filename);
 
       FILE *fp = fopen(name, "r+");
       int status, filesize, counter = 0;
@@ -87,7 +87,7 @@ INDEX **read_index_file(char *filename, int *nIndex){
          fread(&status, sizeof(int), 1, fp);
 
          if(status != 0){
-            create_index(name);
+            create_index_file(name);
          }
 
          fseek(fp, 0, SEEK_END);

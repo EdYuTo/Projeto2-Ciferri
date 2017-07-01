@@ -45,9 +45,9 @@ int main(int argc, char *argv[]){
 			case 'G': //Gravação dos dados nos 3 arquivos de saída com seus respectivos índices
 				if(fopen("best.bin", "rb") == NULL){ //Checa se os arquivos já foram criados
 					read_csv_delim();
-					create_index("best.bin");
-					create_index("worst.bin");
-					create_index("first.bin");
+					create_index_file("best.bin");
+					create_index_file("worst.bin");
+					create_index_file("first.bin");
 
 					printf("\nDados gravados\n");
 				}else{
