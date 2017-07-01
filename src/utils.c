@@ -237,7 +237,7 @@ void apagar_registro(REG **reg){
 
 void imprimir_registro(REG *reg){
     if(reg != NULL) {
-        printf("\n-----------------------------\n");
+        printf("-----------------------------\n");
         printf("Dominio: %s\n", reg->dominio);
         printf("Documento: %s\n", reg->doc);
         printf("Nome: %s\n", reg->nome);
@@ -270,7 +270,7 @@ char *makeIndex(char *string) {
     char **s = match(string, "^(.*).bin$", 2);
     char *idx;
 
-    idx = (char *) malloc (sizeof(char)*(strlen(s[1]+5)));
+    idx = (char *) malloc (sizeof(char)*(strlen(s[1])+5));
     strcpy(idx, s[1]);
 
     strcat(idx,".idx");
