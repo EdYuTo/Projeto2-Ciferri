@@ -172,7 +172,7 @@ int read_csv_delim() {
 
 REG *read_register(FILE *fp){
     REG *r;
-    int tam, ticket;
+    int tam, ticket, removed = 0;
     char aux[500];
     int tamfixo = 20;
     char delim;
@@ -181,6 +181,11 @@ REG *read_register(FILE *fp){
 
     r = criar_registro();
 
+    fread(&delim, sizeof(char), 1, fp);
+    if (delim == '*')
+        removed = 1;
+    fseek(fp, -1, SEEK_CUR);
+    
     while(n_delim < 2) {
         
         /* lendo o documento e salvando em r.documento */
@@ -229,8 +234,11 @@ REG *read_register(FILE *fp){
         fread(&delim, sizeof(char), 1, fp);
         n_delim++;
     }
+    if (removed) {
+        apagar_registro(&r);
+        return NULL;
+    }
     return r;
-
 }
 
 void read_out_delim(char *name) {
@@ -384,7 +392,7 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
     /* tamanho do registro a ser removido */
     rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
 
-    int regSize = -1, i = 1;
+    int regSize = -1;
     int offset = head;
     char c;
     int ant = -1;
