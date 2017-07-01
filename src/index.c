@@ -64,7 +64,10 @@ int create_index(char *filename) {
 		fwrite(&(indices[i]->ticket), sizeof(int), 1, fpout);
 
 		fwrite(&(indices[i]->byteOffset), sizeof(int), 1, fpout);
+		
+		free(indices[i]);
 	}
+	free(indices);
 	free(idx_file);
 	fclose(fpin);
 	fclose(fpout);
