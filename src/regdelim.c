@@ -384,11 +384,18 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
     /* tamanho do registro a ser removido */
     rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
 
-    int regSize = -1;
+    int regSize = -1, i = 1;
     int offset = head;
     char c;
     int ant = -1;
-    if(head != -1) fseek(fp_bin, head, SEEK_SET);
+    if(head != -1){
+        fseek(fp_bin, head, SEEK_SET);
+        fread(&c, sizeof(char), 1, fp_bin);
+        fread(&offset, sizeof(int), 1, fp_bin);
+        fread(&regSize, sizeof(int), 1, fp_bin);
+        fseek(fp_bin, head, SEEK_SET);
+        offset = head;
+    }
 
     /*Procura a posiçao de inserçao na lista*/
     while(head != -1 && rec_size > regSize){
