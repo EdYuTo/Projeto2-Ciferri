@@ -9,7 +9,7 @@ int create_index(char *filename) {
 	FILE *fpout;
 	INDEX **indices = NULL;
 	int filesize, counter = 0;
-	int n_delim, i;
+	int n_delim = 0, i;
 	char c;
 	char *idx_file;
 	int head;
@@ -19,6 +19,8 @@ int create_index(char *filename) {
 
 	if (fpin == NULL) {
 		printf("Erro! Não foi possível abrir o arquivo de dados\n");
+		if (fpout)
+			fclose(fpout);
 		return 0;
 	}
 
