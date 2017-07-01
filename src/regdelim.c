@@ -897,18 +897,19 @@ int record_size(FILE *fp, int offset) {
     return k;
 }
 
-void remove_from_index(INDEX **vector, int size, int k) {
+void remove_from_index(INDEX ***vector, int *size, int k) {
 
     int i;
 
-    for (i = k; i < size-1; i++) {
+    for (i = k; i < (*size)-1; i++) {
         vector[i] = vector[i+1];
     }
-    *vector = (INDEX *) realloc (*vector, sizeof(INDEX)*(size-1));
+    *vector = (INDEX **) realloc (*vector, sizeof(INDEX *)*((*size)-1));
+    (*size)--;
     return;
 }
 
-int remove_record(int ticket, char *file_bin, INDEX **vector, int size) {
+int remove_record(int ticket, char *file_bin, INDEX ***vector, int *size) {
 
     FILE *fp_bin = fopen(file_bin, "r+");
     int result;
@@ -924,7 +925,9 @@ int remove_record(int ticket, char *file_bin, INDEX **vector, int size) {
     fread(&head, sizeof(int), 1, fp_bin);
 
     /* busca binaria no vetor de indices */
-    result = binary_search(*vector, ticket, 0, size-1);
+    result = binary_search(*vector, ticket, 0, (*size)-1);
+    
+    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
 
     if (result == -1) {
         printf("Ticket não encontrado.\n");
@@ -933,7 +936,9 @@ int remove_record(int ticket, char *file_bin, INDEX **vector, int size) {
     }
 
     /* tamanho do registro a ser removido */
-    rec_size = record_size(fp_bin, (*vector)[result].byteOffset);
+    rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
+
+    fseek(fp_bin, (*vector)[result]->byteOffset, SEEK_SET);
 
     /* marca como removido, marca o offset do
     ultimo registro removido e o tamanho do registro
@@ -945,7 +950,7 @@ int remove_record(int ticket, char *file_bin, INDEX **vector, int size) {
 
     /* escreve o offset no cabeçalho */
     fseek(fp_bin, 0, SEEK_SET);
-    fwrite(&(*vector)[result].byteOffset, sizeof(int), 1, fp_bin);
+    fwrite(&(*vector)[result]->byteOffset, sizeof(int), 1, fp_bin);
 
     /* remove do vetor de indices */
     remove_from_index(vector, size, result);
