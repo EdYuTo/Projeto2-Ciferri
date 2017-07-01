@@ -295,7 +295,7 @@ int record_size(FILE *fp, int offset) {
 void remove_from_index(INDEX ***vector, int *size, int k) {
 
     int i;
-
+    apagar_index(vector[k]);
     for (i = k; i < (*size)-1; i++) {
         (*vector)[i] = (*vector)[i+1];
     }
@@ -321,14 +321,14 @@ int remove_record_no_sort(int ticket, char *file_bin, INDEX ***vector, int *size
 
     /* busca binaria no vetor de indices */
     result = binary_search(*vector, ticket, 0, (*size)-1);
-    
-    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
 
     if (result == -1) {
         printf("Ticket não encontrado.\n");
         fclose(fp_bin);
         return 0;
     }
+    
+    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
 
     /* tamanho do registro a ser removido */
     rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
