@@ -395,7 +395,7 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
         ant = ftell(fp_bin);
         fread(&c, sizeof(char), 1, fp_bin);
         fread(&offset, sizeof(int), 1, fp_bin);
-        fread(&regSize, sizeof(char), 1, fp_bin);
+        fread(&regSize, sizeof(int), 1, fp_bin);
 
         if(offset != -1)
             fseek(fp_bin, offset, SEEK_SET);
