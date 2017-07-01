@@ -430,3 +430,31 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
 
     return 1;
 }
+
+void show_list(char *filename){
+    FILE *fp = fopen(filename, "r");
+    int offset;
+
+    fread(&offset, sizeof(int), 1, fp);
+    printf("Cabeça da lista (byte offset): %d\n", offset);
+    printf("-------------------------------------\n");
+
+    if(offset != -1)
+        fseek(fp, offset, SEEK_SET);
+
+    printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
+    while (offset != -1 && fgetc(stdin) != EOF) {
+        char c;
+        int regSize;
+
+        fread(&c, sizeof(char), 1, fp);
+        fread(&offset, sizeof(int), 1, fp);
+        fread(&regSize, sizeof(int), 1, fp);
+
+        fseek(fp, offset, SEEK_SET);
+
+        printf("Tamanho do registro: %d\nProximo da lista (byte offset): %d\n", regSize, offset);
+        printf("-------------------------------------\n");
+        printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
+    }
+}
