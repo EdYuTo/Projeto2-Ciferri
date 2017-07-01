@@ -15,6 +15,6 @@ void busca_nome_delim(char *chave, int *elem);
 void busca_n_delim(int n);
 void busca_campo_registro_delim(int campo, int reg);
 
-int remove_record(int ticket, char *file_bin, INDEX **vector, int size);
+int remove_record(int ticket, char *file_bin, INDEX ***vector, int *size);
 
 #endif
