@@ -75,44 +75,44 @@ int create_index(char *filename) {
 	return 1;
 }
 
-INDEX **read_index_file(char *filename, int *nIndices){
-	if(filename != NULL) {
-		filename = makeIndex(filename);
+INDEX **read_index_file(char *filename, int *nIndex){
+   if(filename != NULL) {
+      char *name = makeIndex(filename);
 
-		FILE *fp = fopen(filename, "r+");
-		int status, filesize, counter = 0;
-		INDEX **indices = NULL;
+      FILE *fp = fopen(name, "r+");
+      int status, filesize, counter = 0;
+      INDEX **indices = NULL;
 
-		if(fp != NULL){
-			fread(&status, sizeof(int), 1, fp);
+      if(fp != NULL){
+         fread(&status, sizeof(int), 1, fp);
 
-			if(status != 0){
-				create_index(filename);
-			}
+         if(status != 0){
+            create_index(name);
+         }
 
-			fseek(fp, 0, SEEK_END);
-			filesize = ftell(fp);
-			fseek(fp, 0, SEEK_SET);
+         fseek(fp, 0, SEEK_END);
+         filesize = ftell(fp);
+         fseek(fp, 0, SEEK_SET);
 
-			status = 1;
-			fwrite(&status, sizeof(int), 1, fp);
+         status = 1;
+         fwrite(&status, sizeof(int), 1, fp);
 
-			while(ftell(fp) < filesize){
-				indices = realloc(indices, sizeof(INDEX*) * (counter + 1));
-				indices[counter] = criar_index();
+         while(ftell(fp) < filesize){
+            indices = realloc(indices, sizeof(INDEX*) * (counter + 1));
+            indices[counter] = criar_index();
 
-				fread(&(indices[counter]->ticket), sizeof(int), 1, fp);
-				fread(&(indices[counter]->byteOffset), sizeof(int), 1, fp);
+            fread(&(indices[counter]->ticket), sizeof(int), 1, fp);
+            fread(&(indices[counter]->byteOffset), sizeof(int), 1, fp);
 
-				counter++;
-			}
-		}
-		fclose(fp);
-
-		*nIndices = counter;
-		return indices;
-	}
-	return NULL;
+            counter++;
+         }
+         fclose(fp);
+      }
+      *nIndex = counter;
+      free(name);
+      return indices;
+   }
+   return NULL;
 }
 
 void write_index_file(INDEX ***indices, int *nIndices, char *filename){
