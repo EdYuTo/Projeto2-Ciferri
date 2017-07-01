@@ -2,10 +2,10 @@
 Trabalho Pratico de Arquivos
 
 # Integrantes
-Bruno Flavio- 9791330
-Edson Toma - 9791305
-Luca Porto - 9778943
-Murilo Baldi - 9790990
+ - Bruno Flavio- 9791330
+ - Edson Toma - 9791305
+ - Luca Porto - 9778943
+ - Murilo Baldi - 9790990
 
 # Objetivo
 Desenvolver um programa capaz de, a partir de um arquivo base, gerar arquivos com organizacoes especificas e seus respectivos arquivos de indice. Tambem foi solicitado que um usuario pudesse inserir ou remover dados dos arquivos gerados, sendo que os arquivos com organizacoes especificas nao sao alterados diretamente pelo usuario. Essas operacoes sao executadas pelo programa com base nos arquivos de indice, a fragmentacao interna pode ser tratadas com tres tecnicas diferentes (first-fit, best-fit, worst-fit).
