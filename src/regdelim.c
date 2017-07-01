@@ -232,9 +232,9 @@ REG *read_register(FILE *fp){
 
 }
 
-void read_out_delim() {
+void read_out_delim(char *name) {
 
-    FILE *fp = fopen("regdelim.bin", "r+");
+    FILE *fp = fopen(name, "r+");
     REG *r;
     int tam, ticket;
     char *str;
