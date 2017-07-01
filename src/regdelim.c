@@ -25,13 +25,25 @@ int read_csv_delim() {
     int tamfixo = 20;
     char delim = '#';
     int filesize;
+    int head = -1;
 
-    if (!fpin)
+    if (!fpin) {
+        if (!fpout1)
+            fclose(fpout1);
+        if (!fpout2)
+            fclose(fpout2);
+        if (!fpout3)
+            fclose(fpout3);
         return -1;
+    }
 
     fseek(fpin, 0, SEEK_END);
     filesize = ftell(fpin);
     fseek(fpin, 0, SEEK_SET);
+
+    fwrite(&head, sizeof(int), 1, fpout1);
+    fwrite(&head, sizeof(int), 1, fpout2);
+    fwrite(&head, sizeof(int), 1, fpout3);
 
     while (ftell(fpin) != filesize) {
 
@@ -851,4 +863,91 @@ void busca_campo_registro_delim(int campo, int reg) {
     }
 
     fclose(fp);
+}
+
+/* retorna o tamanho do registro
+que inicia em 'offset' */
+int record_size(FILE *fp, int offset) {
+
+    char c;
+    int n_delim = 0;
+    int filesize, k = 0;
+    int counter = 0;
+
+    fseek(fp, 0, SEEK_END);
+    filesize = ftell(fp);
+    fseek(fp, offset, SEEK_SET);
+
+    while (n_delim < 2 && ftell(fp) < filesize) {
+        fread(&c, sizeof(char), 1, fp);
+
+        if(c == '#')
+            n_delim ++;
+        else if (n_delim > 0)
+            n_delim = 0;
+        k++;
+    }
+
+    fseek(fp, -k, SEEK_CUR);
+    k -= 2;
+
+    return k;
+}
+
+void remove_from_index(INDEX **vector, int size, int k) {
+
+    int i;
+
+    for (i = k; i < size-1; i++) {
+        vector[i] = vector[i+1];
+    }
+    *vector = (INDEX *) realloc (*vector, sizeof(INDEX)*(size-1));
+    return;
+}
+
+int remove_record(int ticket, char *file_bin, INDEX **vector, int size) {
+
+    FILE *fp_bin = fopen(file_bin, "r+");
+    int result;
+    int rec_size;
+    int head;
+    const char removed = '*';
+
+    if (!fp_bin) {
+        printf("Erro ao abrir o arquivo de dados.\n");
+        return 0;
+    }
+
+    fread(&head, sizeof(int), 1, fp_bin);
+
+    /* busca binaria no vetor de indices */
+    result = binary_search(*vector, ticket, 0, size-1);
+
+    if (result == -1) {
+        printf("Ticket não encontrado.\n");
+        fclose(fp_bin);
+        return 0;
+    }
+
+    /* tamanho do registro a ser removido */
+    rec_size = record_size(fp_bin, (*vector)[result].byteOffset);
+
+    /* marca como removido, marca o offset do
+    ultimo registro removido e o tamanho do registro
+    recem removido */
+    fwrite(&removed, sizeof(char), 1, fp_bin);
+    fwrite(&head, sizeof(int), 1, fp_bin);
+    fwrite(&rec_size, sizeof(int), 1, fp_bin);
+
+
+    /* escreve o offset no cabeçalho */
+    fseek(fp_bin, 0, SEEK_SET);
+    fwrite(&(*vector)[result].byteOffset, sizeof(int), 1, fp_bin);
+
+    /* remove do vetor de indices */
+    remove_from_index(vector, size, result);
+
+    fclose(fp_bin);
+
+    return 1;
 }

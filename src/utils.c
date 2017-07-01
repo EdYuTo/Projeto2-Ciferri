@@ -299,3 +299,19 @@ void apagar_index(INDEX **index){
         *index = NULL;
     }
 }
+
+int binary_search(INDEX *vector, int key, int start, int end) {
+
+    int middle = (start+end)/2;
+
+    if (start > end) return -1;
+
+    if (key == vector[middle].ticket)
+        return middle;
+
+    else if (key < vector[middle].ticket)
+        return binary_search(vector, key, start, middle-1);
+
+    else
+        return binary_search(vector, key, middle+1, end);
+}

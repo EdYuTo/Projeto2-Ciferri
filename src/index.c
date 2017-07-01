@@ -12,6 +12,7 @@ int create_index(char *filename) {
 	int n_delim, i;
 	char c;
 	char *idx_file;
+	int head;
 
 	idx_file = makeIndex(filename);
 	fpout = fopen(idx_file, "w+");
@@ -21,10 +22,11 @@ int create_index(char *filename) {
 		return 0;
 	}
 
-
 	fseek(fpin, 0, SEEK_END);
 	filesize = ftell(fpin);
 	fseek(fpin, 0, SEEK_SET);
+
+	fread(&head, sizeof(int), 1, fpin);
 
 	while (ftell(fpin) != filesize) {
 		indices = realloc(indices, sizeof(INDEX*) * (counter + 1));
