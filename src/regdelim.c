@@ -438,15 +438,103 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
     return 1;
 }
 
+int remove_record_descending_sort(int ticket, char *file_bin, INDEX ***vector, int *size) {
+
+   FILE *fp_bin = fopen(file_bin, "r+");
+   int result;
+   int rec_size;
+   int head;
+   const char removed = '*';
+
+   if (!fp_bin) {
+      printf("Erro ao abrir o arquivo de dados.\n");
+      return 0;
+   }
+
+   fread(&head, sizeof(int), 1, fp_bin);
+
+   /* busca binaria no vetor de indices */
+   result = binary_search(*vector, ticket, 0, (*size)-1);
+
+   if (result == -1) {
+      printf("Ticket não encontrado.\n");
+      fclose(fp_bin);
+      return 0;
+   }
+
+   printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
+
+   /* tamanho do registro a ser removido */
+   rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
+
+   int regSize = -1;
+   int offset = head;
+   char c;
+   int ant = -1;
+   if(head != -1){
+      fseek(fp_bin, head, SEEK_SET);
+      fread(&c, sizeof(char), 1, fp_bin);
+      fread(&offset, sizeof(int), 1, fp_bin);
+      fread(&regSize, sizeof(int), 1, fp_bin);
+      fseek(fp_bin, head, SEEK_SET);
+      offset = head;
+   }
+
+   /*Procura a posiçao de inserçao na lista*/
+   while(head != -1 && rec_size < regSize){
+      ant = ftell(fp_bin);
+      fread(&c, sizeof(char), 1, fp_bin);
+      fread(&offset, sizeof(int), 1, fp_bin);
+      fread(&regSize, sizeof(int), 1, fp_bin);
+
+      if(offset != -1)
+         fseek(fp_bin, offset, SEEK_SET);
+      else break;
+   }
+
+   fseek(fp_bin, (*vector)[result]->byteOffset, SEEK_SET);
+
+   /* marca como removido, marca o offset do
+      ultimo registro removido e o tamanho do registro
+      recem removido */
+   fwrite(&removed, sizeof(char), 1, fp_bin);
+   fwrite(&offset, sizeof(int), 1, fp_bin);
+   fwrite(&rec_size, sizeof(int), 1, fp_bin);
+
+   /*Insere o registro na lista de registros removidos*/
+   if(ant != -1) {
+      fseek(fp_bin, ant, SEEK_SET);
+      fread(&c, sizeof(char), 1, fp_bin);
+      fwrite(&(*vector)[result]->byteOffset, sizeof(int), 1, fp_bin);
+   }
+   /* escreve o offset no cabeçalho se necessario*/
+   else{
+      fseek(fp_bin, 0, SEEK_SET);
+      fwrite(&(*vector)[result]->byteOffset, sizeof(int), 1, fp_bin);
+   }
+
+   /* remove do vetor de indices */
+   remove_from_index(vector, size, result);
+
+   fclose(fp_bin);
+
+   return 1;
+}
+
 void show_list(char *filename){
     FILE *fp = fopen(filename, "r");
     int offset;
 
+    if (!fp) {
+        printf("Arquivo invalido!\n");
+        return;
+    }
+    
     fread(&offset, sizeof(int), 1, fp);
     printf("Cabeça da lista (byte offset): %d\n", offset);
     printf("-------------------------------------\n");
 
-    if(offset != -1)
+    if (offset != -1)
         fseek(fp, offset, SEEK_SET);
 
     printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
@@ -464,4 +552,5 @@ void show_list(char *filename){
         printf("-------------------------------------\n");
         printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
     }
+    fclose(fp);
 }
