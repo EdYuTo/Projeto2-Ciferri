@@ -270,7 +270,7 @@ char *makeIndex(char *string) {
     char **s = match(string, "^(.*).bin$", 2);
     char *idx;
 
-    idx = (char *) malloc (sizeof(char)*(strlen(s[1]+5)));
+    idx = (char *) malloc (sizeof(char)*(strlen(s[1])+5));
     strcpy(idx, s[1]);
 
     strcat(idx,".idx");
