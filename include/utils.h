@@ -98,4 +98,6 @@ INDEX *criar_index();
 
 void apagar_index(INDEX **index);
 
+int binary_search(INDEX *vector, int key, int start, int end);
+
 #endif //PROJETO1_CIFERRI_UTILS_H
