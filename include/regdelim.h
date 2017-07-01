@@ -4,7 +4,7 @@
 #include <utils.h>
 
 int read_csv_delim();
-void read_out_delim();
+void read_out_delim(char *);
 
 void busca_documento_delim(char *chave, int *elem);
 void busca_dominio_delim(char *chave);
