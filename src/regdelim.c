@@ -179,8 +179,6 @@ REG *read_register(FILE *fp){
     r = criar_registro();
 
     while(n_delim < 2) {
-        /* ignorando o cabecalho */
-        fread(&ticket, sizeof(int), 1, fp);
         
         /* lendo o documento e salvando em r.documento */
         fread(&aux, sizeof(char), tamfixo, fp);
@@ -251,6 +249,9 @@ void read_out_delim(char *name) {
     fseek(fp, 0, SEEK_END);
     filesize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
+    
+    /* ignorando o cabecalho */
+    fread(&ticket, sizeof(int), 1, fp);
     
     printf("Digite ENTER para comecar a impressão ou ctrl+D para sair");
     while (ftell(fp) < filesize && fgetc(stdin) != EOF) {
