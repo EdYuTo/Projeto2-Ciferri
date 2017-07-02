@@ -678,7 +678,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             fit = 1;//pode ser inserido nessa posicao
          fread(&offset, sizeof(int), 1, fp);
          fread(&regSize, sizeof(int), 1, fp);
-         
+
          /*se couber insere-se nessa posicao*/
          if (fit && regSize > reg_Size(newreg)+18) {//indicadores de tamanho!
             int pos = ftell(fp);

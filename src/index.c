@@ -140,3 +140,23 @@ void write_index_file(INDEX ***indices, int *nIndices, char *filename){
 		fclose(fp);
 	}
 }
+
+void show_indices(INDEX **indicesF, INDEX **indicesB, INDEX **indicesW, int nf, int nb, int nw){
+	if(indicesF != NULL && indicesB != NULL && indicesW != NULL){
+		printf("First Fit\tBest Fit\tWorst Fit\n");
+		printf("Quantidade: %d\tQuantidade: %d\tQuantidade: %d\n", nf, nb, nw);
+		printf("-------------------------------------------------\n\n");
+		int i;
+
+		printf("Digite ENTER para começar a impressão ou ctrl+D para sair\n");
+		for(i = 0; i < nb && fgetc(stdin) != EOF; i++){
+			printf("First Fit\t\tBest Fit\t\tWorst Fit\n");
+			printf("Ticket: %d\t\tTicket: %d\t\tTicket: %d\n", indicesF[i]->ticket, indicesB[i]->ticket, indicesW[i]->ticket);
+			printf("Byte Offset: %d\tByte Offset: %d\tByte Offset: %d\n", indicesF[i]->byteOffset, indicesB[i]->byteOffset, indicesW[i]->byteOffset);
+			printf("-------------------------------------------------\n\n");
+			printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
+		}
+
+	}
+
+}

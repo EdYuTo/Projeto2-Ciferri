@@ -116,6 +116,7 @@ int main(int argc, char *argv[]){
 				if(indexW == NULL)
 					indexW = read_index_file("worst.bin", &nw);
 
+				show_indices(indexF, indexB, indexW, nf, nb, nw);
 			//...
 				printOpt();
 				break;
