@@ -728,13 +728,19 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
             fread(&offset, sizeof(int), 1, fp);
             fread(&remSize, sizeof(int), 1, fp);
 
+            pos = head;
             offset = head;
             fseek(fp, head, SEEK_SET);
         }
+        else{
+            pos = fim;
+        }
 
         /*Laço que acha a posiçao de inserçao*/
-        pos = fim;
         while(offset != -1 && regSize+3*sizeof(char) > remSize){
+            if(regSize == remSize)
+                break;
+
             pos = offset;
 
             fread(&aux, sizeof(char), 1, fp);
@@ -748,6 +754,7 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
         if(regSize+3*sizeof(char) > remSize)
             pos = fim;
 
+        fseek(fp, pos, SEEK_SET);
         writeReg(fp, reg);
 
         int size = remSize - regSize;
@@ -755,6 +762,9 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
         char delim = '#';
 
         if(size >= (3*sizeof(char) + 2*sizeof(int)) && size > 0){
+            if(head == pos)
+                head = -1;
+
             int newpos = ftell(fp);
             fwrite(&remChar, sizeof(char), 1, fp);
             fwrite(&head, sizeof(int), 1, fp);
@@ -782,4 +792,5 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
 
         return 1;
     }
+    return 0;
 }
