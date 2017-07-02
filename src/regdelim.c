@@ -681,6 +681,11 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
          
          /*se couber insere-se nessa posicao*/
          if (fit && regSize > reg_Size(newreg)+18) {//indicadores de tamanho!
+            int pos = ftell(fp);
+            fseek(fp, 0, SEEK_SET);
+            fwrite(&offset, sizeof(int), 1, fp);
+            fseek(fp, pos, SEEK_SET);
+
             fseek(fp, -9, SEEK_CUR);//volta os 9 bytes lidos acima
             add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona o indice
             writeReg(fp, newreg);//escreve na posicao
