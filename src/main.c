@@ -29,6 +29,13 @@ void printOpt(){
 	printf("   S - Para finalizar o programa\n\n");
 }
 
+void printEst(){
+	printf("\nEscolha qual arquivo mostrar\n");
+	printf("   F - Arquivo first.bin\n");
+	printf("   B - Arquivo best.bin\n");
+	printf("   W - Arquivo worst.bin\n");
+}
+
 int main(int argc, char *argv[]){
 	int i, j;
 	int ticket;
@@ -109,19 +116,31 @@ int main(int argc, char *argv[]){
 				printOpt();
 				break;
 			case 'E': //Estatísticas dos registros
-				if(indexB == NULL)
-					indexB = read_index_file("best.bin", &nb);
-				if(indexF == NULL)
-					indexF = read_index_file("first.bin", &nf);
-				if(indexW == NULL)
-					indexW = read_index_file("worst.bin", &nw);
+				printEst();
 
-			//...
+				char opt2;
+				scanf("%c", &opt2);
+				opt2 = toupper(opt2);
+				getchar();
+
+				if(opt2 == 'F')
+					show_list("first.bin");
+				else if(opt2 == 'B')
+					show_list("best.bin");
+				else if(opt2 == 'W')
+					show_list("worst.bin");
+
+				getchar();
 				printOpt();
 				break;
 
 			default: //Erro
-					if(opt == 'S') break;
+					if(opt == 'S'){
+						write_index_file(&indexB, &nb, "best.idx");
+						write_index_file(&indexF, &nf, "first.idx");
+						write_index_file(&indexW, &nw, "worst.idx");
+						break;
+					}
 					printf("\nERRO: Digite uma operação válida\n");
 					printOpt();
 					break;
