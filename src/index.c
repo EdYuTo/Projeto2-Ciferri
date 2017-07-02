@@ -87,7 +87,7 @@ INDEX **read_index_file(char *filename, int *nIndex){
          fread(&status, sizeof(int), 1, fp);
 
          if(status != 0){
-            create_index_file(name);
+            create_index_file(filename);
          }
 
          fseek(fp, 0, SEEK_END);

@@ -35,7 +35,7 @@ int main(int argc, char *argv[]){
 	int nf, nb, nw;
 	char opt;
 	FILE *fileIn = fopen("turmaA-dadosDominios.csv", "r");
-	INDEX **indexF, **indexB, **indexW;
+	INDEX **indexF = NULL, **indexB = NULL, **indexW = NULL;
 
 	printOpt();
 
@@ -64,6 +64,14 @@ int main(int argc, char *argv[]){
 				break;
 
 			case 'R': //Remoção de registros
+				if(indexB == NULL)
+					indexB = read_index_file("best.bin", &nb);
+				if(indexF == NULL)
+					indexF = read_index_file("first.bin", &nf);
+				if(indexW == NULL)
+					indexW = read_index_file("worst.bin", &nw);
+
+
 				printf("\nIndique o valor do Ticket correspondente ao registro que deseja remover\n");
 				ticket = -1;
 				while(ticket < 0){
@@ -79,16 +87,34 @@ int main(int argc, char *argv[]){
 				printOpt();
 				break;
 			case 'I': //Inserção de registros
+				if(indexB == NULL)
+					indexB = read_index_file("best.bin", &nb);
+				if(indexF == NULL)
+					indexF = read_index_file("first.bin", &nf);
+				if(indexW == NULL)
+					indexW = read_index_file("worst.bin", &nw);
 
 			//...
 				printOpt();
 				break;
 			case 'V': //Estatísticas dos índices
+				if(indexB == NULL)
+					indexB = read_index_file("best.bin", &nb);
+				if(indexF == NULL)
+					indexF = read_index_file("first.bin", &nf);
+				if(indexW == NULL)
+					indexW = read_index_file("worst.bin", &nw);
 
 			//...
 				printOpt();
 				break;
 			case 'E': //Estatísticas dos registros
+				if(indexB == NULL)
+					indexB = read_index_file("best.bin", &nb);
+				if(indexF == NULL)
+					indexF = read_index_file("first.bin", &nf);
+				if(indexW == NULL)
+					indexW = read_index_file("worst.bin", &nw);
 
 			//...
 				printOpt();
