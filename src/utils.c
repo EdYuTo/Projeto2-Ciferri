@@ -315,3 +315,34 @@ int binary_search(INDEX **vector, int key, int start, int end) {
     else
         return binary_search(vector, key, middle+1, end);
 }
+
+REG *le_registro() {
+
+    REG *r = criar_registro();
+
+    printf("Digite o domínio: ");
+    r->dominio = readLine(stdin, "\n");
+
+    printf("Digite o documento: ");
+    r->doc = readLine(stdin, "\n");
+
+    printf("Digite o nome: ");
+    r->nome = readLine(stdin, "\n");
+
+    printf("Digite a cidade: ");
+    r->cidade = readLine(stdin, "\n");
+
+    printf("Digite a UF: ");
+    r->uf = readLine(stdin, "\n");
+
+    printf("Digite a DataHoraCadastro: ");
+    r->dataHoraCadastro = readLine(stdin, "\n");
+
+    printf("Digite a DataHoraAtualiza: ");
+    r->dataHoraAtualiza = readLine(stdin, "\n");
+
+    printf("Digite o ticket: ");
+    scanf("%d", &(r->ticket));
+
+    return r;
+}
