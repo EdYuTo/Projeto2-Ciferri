@@ -180,10 +180,15 @@ REG *read_register(FILE *fp){
 
    int n_delim = 0;
 
+    int pos = ftell(fp);
+    fseek(fp, 0, SEEK_END);
+    int filesize = ftell(fp);
+    fseek(fp, pos, SEEK_SET);
+
    fread(&delim, sizeof(char), 1, fp);
 
    /*se o registro for marcado como removido ele eh pulado*/
-   while (delim == '*' || delim == '!') {
+   while ((delim == '*' || delim == '!') && ftell(fp) < filesize) {
       while (n_delim < 2) {
          fread(&delim, sizeof(char), 1, fp);
 
