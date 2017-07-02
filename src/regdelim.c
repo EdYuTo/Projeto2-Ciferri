@@ -625,7 +625,6 @@ int reg_Size(REG *reg) {
        tam += 20 * sizeof(char); //tam fixo
        tam += 20 * sizeof(char); //tam fixo
        tam += 20 * sizeof(char); //tam fixo
-       tam += 20 * sizeof(char); //tam fixo
       return tam;
    }
    return -1;//erro
