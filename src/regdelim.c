@@ -171,74 +171,81 @@ int read_csv_delim() {
 }
 
 REG *read_register(FILE *fp){
-    REG *r;
-    int tam, ticket, removed = 0;
-    char aux[500];
-    int tamfixo = 20;
-    char delim;
+   REG *r;
+   int tam, ticket;
+   char aux[500];
+   int tamfixo = 20;
+   char delim;
 
-    int n_delim = 0;
+   int n_delim = 0;
 
-    r = criar_registro();
+   fread(&delim, sizeof(char), 1, fp);
 
-    fread(&delim, sizeof(char), 1, fp);
-    if (delim == '*')
-        removed = 1;
-    fseek(fp, -1, SEEK_CUR);
-    
-    while(n_delim < 2) {
-        
-        /* lendo o documento e salvando em r.documento */
-        fread(&aux, sizeof(char), tamfixo, fp);
-        memcpy(r->doc, aux, tamfixo);
+   /*se o registro for marcado como removido ele eh pulado*/
+   if (delim == '*' || delim == '!') {
+      while (n_delim < 2) {
+         fread(&delim, sizeof(char), 1, fp);
 
-        /* lendo dataHoraCadastro e salvando na struct r */
-        fread(&aux, sizeof(char), tamfixo, fp);
-        memcpy(r->dataHoraCadastro, aux, tamfixo);
+         if(delim == '#')
+            n_delim ++;
+         else if (n_delim > 0)
+            n_delim = 0;
+      }
+      return NULL;
+   }
 
-        /* lendo dataHoraAtualiza e salvando na struct r */
-        fread(&aux, sizeof(char), tamfixo, fp);
-        memcpy(r->dataHoraAtualiza, aux, tamfixo);
+   r = criar_registro();
+   fseek(fp, -1, SEEK_CUR);
 
-        /* lendo o numero do ticket */
-        fread(&ticket, sizeof(int), 1, fp);
-        r->ticket = ticket;
+   while(n_delim < 2) {
 
-        /* lendo e salvando o dominio */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->dominio = (char *) malloc(sizeof(char) * tam);
-        strcpy(r->dominio, aux);
+      /* lendo o documento e salvando em r.documento */
+      fread(&aux, sizeof(char), tamfixo, fp);
+      memcpy(r->doc, aux, tamfixo);
 
-        /* lendo e salvando o nome */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->nome = (char *) malloc(sizeof(char) * tam);
-        strcpy(r->nome, aux);
+      /* lendo dataHoraCadastro e salvando na struct r */
+      fread(&aux, sizeof(char), tamfixo, fp);
+      memcpy(r->dataHoraCadastro, aux, tamfixo);
 
-        /* lendo e salvando a cidade */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->cidade = (char *) malloc(sizeof(char) * tam);
-        strcpy(r->cidade, aux);
+      /* lendo dataHoraAtualiza e salvando na struct r */
+      fread(&aux, sizeof(char), tamfixo, fp);
+      memcpy(r->dataHoraAtualiza, aux, tamfixo);
 
-        /* lendo e salvando a uf */
-        fread(&tam, sizeof(int), 1, fp);
-        fread(&aux, sizeof(char), tam, fp);
-        r->uf = (char *) malloc(sizeof(char) * tam);
-        strcpy(r->uf, aux);
+      /* lendo o numero do ticket */
+      fread(&ticket, sizeof(int), 1, fp);
+      r->ticket = ticket;
 
-        /* leitura do delimitador */
-        fread(&delim, sizeof(char), 1, fp);
-        n_delim++;
-        fread(&delim, sizeof(char), 1, fp);
-        n_delim++;
-    }
-    if (removed) {
-        apagar_registro(&r);
-        return NULL;
-    }
-    return r;
+      /* lendo e salvando o dominio */
+      fread(&tam, sizeof(int), 1, fp);
+      fread(&aux, sizeof(char), tam, fp);
+      r->dominio = (char *) malloc(sizeof(char) * tam);
+      strcpy(r->dominio, aux);
+
+      /* lendo e salvando o nome */
+      fread(&tam, sizeof(int), 1, fp);
+      fread(&aux, sizeof(char), tam, fp);
+      r->nome = (char *) malloc(sizeof(char) * tam);
+      strcpy(r->nome, aux);
+
+      /* lendo e salvando a cidade */
+      fread(&tam, sizeof(int), 1, fp);
+      fread(&aux, sizeof(char), tam, fp);
+      r->cidade = (char *) malloc(sizeof(char) * tam);
+      strcpy(r->cidade, aux);
+
+      /* lendo e salvando a uf */
+      fread(&tam, sizeof(int), 1, fp);
+      fread(&aux, sizeof(char), tam, fp);
+      r->uf = (char *) malloc(sizeof(char) * tam);
+      strcpy(r->uf, aux);
+
+      /* leitura do delimitador */
+      fread(&delim, sizeof(char), 1, fp);
+      n_delim++;
+      fread(&delim, sizeof(char), 1, fp);
+      n_delim++;
+   }
+   return r;
 }
 
 void read_out_delim(char *name) {
@@ -561,4 +568,134 @@ void show_list(char *filename){
         printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
     }
     fclose(fp);
+}
+
+void writeReg(FILE *fp, REG *reg) {
+   char delim = '#';
+   int tam, tamfixo = 20;
+   /* escreve documento no arquivo ou vazio se
+      "null" no csv */
+   fwrite(reg->doc, sizeof(char), tamfixo, fp);
+
+   /* escrita de dataHoraCadastro e tratamento
+      caso "null" */
+   fwrite(reg->dataHoraCadastro, sizeof(char), tamfixo, fp);
+
+   /* escrita de dataHoraAtualiza */
+   fwrite(reg->dataHoraAtualiza, sizeof(char), tamfixo, fp);
+
+   /* escrita do valor do ticket */
+   fwrite(&(reg->ticket), sizeof(int), 1, fp);
+
+   /* escrita do tamanho de dominio e
+      seu conteudo */
+   tam = strlen(reg->dominio)+1;
+   fwrite(&tam, sizeof(int), 1, fp);
+   fwrite(reg->dominio, sizeof(char), tam, fp);
+
+   /* escrita do tamanho do nome e seu conteudo */
+   tam = strlen(reg->nome)+1;
+   fwrite(&tam, sizeof(int), 1, fp);
+   fwrite(reg->nome, sizeof(char), tam, fp);
+
+   /* tamanho e conteudo de cidade */
+   tam = strlen(reg->cidade)+1;
+   fwrite(&tam, sizeof(int), 1, fp);
+   fwrite(reg->cidade, sizeof(char), tam, fp);
+
+   /* escrita de UF */
+   tam = strlen(reg->uf)+1;
+   fwrite(&tam, sizeof(int), 1, fp);
+   fwrite(reg->uf, sizeof(char), tam, fp);
+
+   /* escreve o delimitador (!) */
+   fwrite(&delim, sizeof(char), 1, fp);
+   fwrite(&delim, sizeof(char), 1, fp);
+}
+
+int reg_Size(REG *reg) {
+   if (reg) {
+      int tam = 0;
+      tam += strlen(reg->dominio)+1;//|
+      tam += strlen(reg->nome)+1;   //|
+      tam += strlen(reg->cidade)+1; //|
+      tam += strlen(reg->uf)+1;     //|_-> + caracter '\0'
+      tam += 4;//ticket
+      if (reg->doc[0] != '\0')
+         tam += 20; //tam fixo
+      if (reg->dataHoraCadastro[0] != '\0')
+         tam += 20; //tam fixo
+      if (reg->dataHoraAtualiza[0] != '\0')
+         tam += 20; //tam fixo
+      return tam;
+   }
+   return -1;//erro
+}
+
+void add_to_index(INDEX ***vector, int *size, int ticket, int byteOffset) {
+   *vector = (INDEX **) realloc (*vector, sizeof(INDEX *)*((*size)+1));
+   (*vector)[(*size)] = criar_index();
+   (*vector)[(*size)]->ticket = ticket;
+   (*vector)[(*size)++]->byteOffset = byteOffset;
+   heap_sort(*vector, *size);
+   return;
+}
+
+int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
+   FILE *fp = fopen(file_bin, "r+");
+   if (fp && newreg != NULL) {//se forem validos
+      int offset;
+      fread(&offset, sizeof(int), 1, fp);//ler cabecalho
+      /*se o cabecario for negativo, insere-se no final*/
+      if (offset < 0) {
+         fseek(fp, 0, SEEK_END);//vai ate o final
+         add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona um indice
+         writeReg(fp, newreg);//escreve no final
+      } else {
+         fseek(fp, offset, SEEK_SET);
+         char c;
+         int regSize, fit = 0;
+
+         /*por definicao, se ha um * existe ao menos 9 bytes, entao existe byteoffset e tam*/
+         fread(&c, sizeof(char), 1, fp);
+         if (c == '*')
+            fit = 1;//pode ser inserido nessa posicao
+         fread(&offset, sizeof(int), 1, fp);
+         fread(&regSize, sizeof(int), 1, fp);
+         
+         /*se couber insere-se nessa posicao*/
+         if (fit && regSize > reg_Size(newreg)) {
+            fseek(fp, -9, SEEK_CUR);//volta os 9 bytes lidos acima
+            add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona o indice
+            writeReg(fp, newreg);//escreve na posicao
+            char useless = '!', mark = '*';//chars predeterminados
+            int newOffset = ftell(fp);//pos atual
+            int rest = record_size(fp, newOffset);//tamanho restante ate o prox registro
+
+            /*se o espaco restante for suficiente para armazenar char + int + int*/
+            if (rest > 8) {
+               fwrite(&mark, sizeof(char), 1, fp);//escreve o *
+/*------------->ainda precisa ordenar na lista*/
+               fread(&newOffset, sizeof(int), 1, fp);//escreve o offset da lista de removidos
+               fread(&rest, sizeof(int), 1, fp);//insere o tamanho
+
+            /*se o espaco nao for suficiente, insere ! para indicar*/
+            } else
+               fwrite(&useless, sizeof(char), 1, fp);
+
+            /*volta para o comeco e altera o cabecalho*/
+            fseek(fp, 0, SEEK_SET);
+            fwrite(&offset, sizeof(int), 1, fp);
+
+         /*se nao couber vai para o final*/
+         } else {
+            fseek(fp, 0, SEEK_END);//vai para o fim
+            add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona nos indices
+            writeReg(fp, newreg);//escreve no fim
+         }
+      }
+      fclose(fp);
+      return 1;//sucesso
+   }
+   return 0;//erro
 }
