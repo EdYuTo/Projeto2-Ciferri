@@ -100,4 +100,6 @@ void apagar_index(INDEX **index);
 
 int binary_search(INDEX **vector, int key, int start, int end);
 
+REG *le_registro();
+
 #endif //PROJETO1_CIFERRI_UTILS_H
