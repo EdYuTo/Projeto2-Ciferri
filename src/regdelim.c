@@ -719,7 +719,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
 int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
     if(filename != NULL && reg != NULL){
         FILE *fp = fopen(filename, "r+");
-        int pos, offset, remSize = 0, regSize, head;
+        int pos, offset, remSize = 0, regSize, head, auxOff;
         char aux;
 
         fseek(fp, 0, SEEK_END);
@@ -746,6 +746,7 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
             fread(&remSize, sizeof(int), 1, fp);
 
             pos = head;
+            auxOff = offset;
             offset = head;
             fseek(fp, head, SEEK_SET);
         }
@@ -779,8 +780,11 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
         char delim = '#';
 
         if(size >= (3*sizeof(char) + 2*sizeof(int)) && size > 0){
+            if(offset == head)
+                offset = auxOff;
+
             if(head == pos)
-                head = -1;
+                head = offset;
 
             int newpos = ftell(fp);
             fwrite(&remChar, sizeof(char), 1, fp);
