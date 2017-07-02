@@ -575,37 +575,49 @@ void show_list(char *filename){
 void writeReg(FILE *fp, REG *reg) {
    char delim = '#';
    int tam, tamfixo = 20;
+   char doc[20], DHC[20], DHA[20];
+
    /* escreve documento no arquivo ou vazio se
       "null" no csv */
-   fwrite(reg->doc, sizeof(char), tamfixo, fp);
+   if (!strcmp(reg->doc, "null")) doc[0] = '\0';
+   else strtoarr(reg->doc, doc, tamfixo);
+   fwrite(doc, sizeof(char), tamfixo, fp);
 
    /* escrita de dataHoraCadastro e tratamento
       caso "null" */
-   fwrite(reg->dataHoraCadastro, sizeof(char), tamfixo, fp);
+   if (!strcmp(reg->dataHoraCadastro, "null"))  DHC[0] = '\0';
+   else strtoarr(reg->dataHoraCadastro, DHC, tamfixo);
+   fwrite(DHC, sizeof(char), tamfixo, fp);
 
    /* escrita de dataHoraAtualiza */
-   fwrite(reg->dataHoraAtualiza, sizeof(char), tamfixo, fp);
+   if (!strcmp(reg->dataHoraAtualiza, "null"))  DHA[0] = '\0';
+   else strtoarr(reg->dataHoraAtualiza, DHA, tamfixo);
+   fwrite(DHA, sizeof(char), tamfixo, fp);
 
    /* escrita do valor do ticket */
-   fwrite(&(reg->ticket), sizeof(int), 1, fp);
+   fwrite(&reg->ticket, sizeof(int), 1, fp);
 
    /* escrita do tamanho de dominio e
       seu conteudo */
+   if (!strcmp(reg->dominio, "null"))   reg->dominio[0] = '\0';
    tam = strlen(reg->dominio)+1;
    fwrite(&tam, sizeof(int), 1, fp);
    fwrite(reg->dominio, sizeof(char), tam, fp);
 
    /* escrita do tamanho do nome e seu conteudo */
+   if (!strcmp(reg->nome, "null"))  reg->nome[0] = '\0';
    tam = strlen(reg->nome)+1;
    fwrite(&tam, sizeof(int), 1, fp);
    fwrite(reg->nome, sizeof(char), tam, fp);
 
    /* tamanho e conteudo de cidade */
+   if (!strcmp(reg->cidade, "null"))    reg->cidade[0] = '\0';
    tam = strlen(reg->cidade)+1;
    fwrite(&tam, sizeof(int), 1, fp);
    fwrite(reg->cidade, sizeof(char), tam, fp);
 
    /* escrita de UF */
+   if (!strcmp(reg->uf, "null"))    reg->uf[0] = '\0';
    tam = strlen(reg->uf)+1;
    fwrite(&tam, sizeof(int), 1, fp);
    fwrite(reg->uf, sizeof(char), tam, fp);
@@ -661,22 +673,22 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             fit = 1;//pode ser inserido nessa posicao
          fread(&offset, sizeof(int), 1, fp);
          fread(&regSize, sizeof(int), 1, fp);
-
+         
          /*se couber insere-se nessa posicao*/
-         if (fit && regSize > reg_Size(newreg)) {
+         if (fit && regSize > reg_Size(newreg)+18) {//indicadores de tamanho!
             fseek(fp, -9, SEEK_CUR);//volta os 9 bytes lidos acima
             add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona o indice
             writeReg(fp, newreg);//escreve na posicao
-            char useless = '!', mark = '*';//chars predeterminados
             int newOffset = ftell(fp);//pos atual
-            int rest = record_size(fp, newOffset);//tamanho restante ate o prox registro
+            char useless = '!', mark = '*';//chars predeterminados
+            int rest = regSize - reg_Size(newreg)-18;//tamanho restante ate o prox registro
 
             /*se o espaco restante for suficiente para armazenar char + int + int*/
             if (rest > 8) {
                fwrite(&mark, sizeof(char), 1, fp);//escreve o *
 /*------------->ainda precisa ordenar na lista*/
-               fread(&newOffset, sizeof(int), 1, fp);//escreve o offset da lista de removidos
-               fread(&rest, sizeof(int), 1, fp);//insere o tamanho
+               fwrite(&newOffset, sizeof(int), 1, fp);//escreve o offset da lista de removidos
+               fwrite(&rest, sizeof(int), 1, fp);//insere o tamanho
 
             /*se o espaco nao for suficiente, insere ! para indicar*/
             } else
