@@ -26,6 +26,7 @@ void printOpt(){
 	printf("   I - Inserção de registro\n");
 	printf("   V - Visualização de estatísticas sobre os arquivos de índice\n");
 	printf("   E - Visualização de estatísticas sobre as listas de registros removidos\n");
+	printf("   P - Impressão de registros, um a um, de arquivo escolhido\n");
 	printf("   S - Para finalizar o programa\n\n");
 }
 
@@ -134,6 +135,24 @@ int main(int argc, char *argv[]){
 					show_list("worst.bin");
 
 				getchar();
+				printOpt();
+				break;
+
+			case 'P': //Impressão de registros, um a um
+				printEst();
+
+				char opt3;
+				scanf("%c", &opt3);
+				opt3 = toupper(opt3);
+				getchar();
+
+				if(opt3 == 'F')
+					read_out_delim("first.bin");
+				else if(opt3 == 'B')
+					read_out_delim("best.bin");
+				else if(opt3 == 'W')
+					read_out_delim("first.bin");
+				
 				printOpt();
 				break;
 
