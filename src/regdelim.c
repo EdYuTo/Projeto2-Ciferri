@@ -811,3 +811,118 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
     }
     return 0;
 }
+
+/* BEST FIT */
+/********************************************/
+
+void rearrange(FILE *fp, int old_offset, int new_offset) {
+
+    int temp = ftell(fp);
+    int head;
+    int next;
+
+    fseek(fp, 0, SEEK_SET);
+    fread(&head, sizeof(int), 1, fp);
+
+    next = head;
+
+    while (next != -1) {
+        printf("Next: %d\n", next);
+        fseek(fp, next, SEEK_SET);
+        fseek(fp, 1, SEEK_CUR);
+        fread(&next, sizeof(char), 1, fp);
+        if (next == old_offset) {
+            fseek(fp, -(sizeof(int)), SEEK_CUR);
+            fwrite(&new_offset, sizeof(int), 1, fp);
+        }
+    }
+
+    fseek(fp, temp, SEEK_SET);
+}
+
+void insert_best_fit(REG *r, INDEX ***indices, int *indSize, char *filename) {
+
+    FILE *fp_bin = fopen(filename, "r+");
+    int rec_size = 64 + 4*(sizeof(int)) + strlen(r->dominio) + 
+    strlen(r->nome) + strlen(r->cidade) + strlen(r->uf);
+    int tam = INT_MAX;
+    int next;
+    char c;
+    int filesize;
+    const char removed = '*';
+    const char delim = '#';
+
+    fseek(fp_bin, 0, SEEK_END);
+    filesize = ftell(fp_bin);
+    fseek(fp_bin, 0, SEEK_SET);
+
+    printf("Rec Size: %d\n", rec_size);
+
+    fread(&next, sizeof(int), 1, fp_bin);
+    printf("Cabeçalho: %d\n", next);
+
+    while (next != -1) {
+        fseek(fp_bin, next, SEEK_SET);
+        fread(&c, sizeof(char), 1, fp_bin);
+        fread(&next, sizeof(int), 1, fp_bin);
+        fread(&tam, sizeof(int), 1, fp_bin);
+        if (tam - rec_size == 0 || tam - rec_size > 3) break;
+        printf("Aqui?\n");
+    }
+    printf("Saiu\n");
+
+    fseek(fp_bin, -(sizeof(char)+2*sizeof(int)), SEEK_CUR);
+    int old_offset = ftell(fp_bin);
+
+    printf("Tam - Rec_size = %d\tNext: %d\n", tam-rec_size, next);
+
+    if ((tam - rec_size) == 0) {
+        printf("Inserindo em cima justinho\n");
+        writeReg(fp_bin, r);
+        printf("1\n");
+        rearrange(fp_bin, old_offset, next);
+        printf("2\n");
+        add_to_index(indices, indSize, r->ticket, old_offset);
+        printf("3\n");
+    }
+
+    else if (tam - rec_size < 3*(sizeof(char)) || next == -1) {
+        // insere no fim do arquivo
+        fseek(fp_bin, 0, SEEK_END);
+        writeReg(fp_bin, r);
+        add_to_index(indices, indSize, r->ticket, old_offset);
+    }
+
+    else if (tam - rec_size < 3*sizeof(char)+2*(sizeof(int))){
+        // insere normal
+        // coloca só o delimitador e asterisco depois
+        printf("Inserindo com fragmentação\n");
+        writeReg(fp_bin, r);
+        printf("1\n");
+        fwrite(&removed, sizeof(char), 1, fp_bin);
+        printf("2\n");
+        rearrange(fp_bin, old_offset, next);
+        printf("3\n");
+        add_to_index(indices, indSize, r->ticket, old_offset);
+    }
+
+    else {
+        printf("Inserindo normal");
+        // insere normal
+        writeReg(fp_bin,r);
+        
+        int new_offset = ftell(fp_bin);
+        tam = record_size(fp_bin, new_offset);
+        
+        fwrite(&removed, sizeof(char), 1, fp_bin);
+        fwrite(&next, sizeof(int), 1, fp_bin);
+        fwrite(&tam, sizeof(int), 1, fp_bin);
+
+        rearrange(fp_bin, old_offset, new_offset);
+
+        // adiciona na lista de indices
+        add_to_index(indices, indSize, r->ticket, old_offset);
+        
+        // ordenar
+    }
+}
