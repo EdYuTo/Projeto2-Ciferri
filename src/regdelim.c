@@ -555,7 +555,7 @@ void show_list(char *filename){
     printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
     while (offset != -1 && fgetc(stdin) != EOF) {
         char c;
-        int regSize;
+        int regSize, offset_atual = offset;
 
         fread(&c, sizeof(char), 1, fp);
         fread(&offset, sizeof(int), 1, fp);
@@ -563,7 +563,7 @@ void show_list(char *filename){
 
         fseek(fp, offset, SEEK_SET);
 
-        printf("Tamanho do registro: %d\nProximo da lista (byte offset): %d\n", regSize, offset);
+        printf("Byte Offset: %d\nTamanho do registro: %d\nProximo da lista (byte offset): %d\n",offset_atual, regSize, offset);
         printf("-------------------------------------\n");
         printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
     }
@@ -662,7 +662,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             fit = 1;//pode ser inserido nessa posicao
          fread(&offset, sizeof(int), 1, fp);
          fread(&regSize, sizeof(int), 1, fp);
-         
+
          /*se couber insere-se nessa posicao*/
          if (fit && regSize > reg_Size(newreg)) {
             fseek(fp, -9, SEEK_CUR);//volta os 9 bytes lidos acima
@@ -698,4 +698,51 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
       return 1;//sucesso
    }
    return 0;//erro
+}
+
+void insert_reg(char *filename, REG *reg, INDEX **index, int* nIndex){
+    if(filename != NULL && reg != NULL){
+        FILE *fp = fopen(filename, "w+");
+        int pos, offset, remSize, regSize;
+        char aux;
+
+        fseek(fp, 0, SEEK_END);
+        int fim = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        int search = binary_search(index, reg->ticket, 0, *nIndex);
+        if(search != -1)
+            return;
+
+        /*Tamanho do registro*/
+        regSize = 5*sizeof(int) + sizeof(char) * 60 + strlen(reg->uf)*sizeof(char)
+                  + strlen(reg->nome)*sizeof(char) + strlen(reg->cidade)*sizeof(char) + strlen(reg->dominio)*sizeof(char);
+
+        /*Leitura do cabeçalho*/
+        fread(&offset, sizeof(int), 1, fp);
+
+        if(offset != -1){
+            fseek(fp, offset, SEEK_SET);
+            fread(&aux, sizeof(char), 1, fp);
+            fread(&remSize, sizeof(int), 1, fp);
+
+            fseek(fp, offset, SEEK_SET);
+        }
+
+        /*Laço que acha a posiçao de inserçao*/
+        pos = fim;
+        while(offset != -1 && regSize < remSize){
+            pos = ftell(fp);
+
+            fread(&aux, sizeof(char), 1, fp);
+            fread(&offset, sizeof(int), 1, fp);
+            fread(&remSize, sizeof(int), 1, fp);
+
+            fseek(fp, offset, SEEK_SET);
+        }
+
+        if(regSize < remSize)
+            pos = fim;
+
+    }
 }
