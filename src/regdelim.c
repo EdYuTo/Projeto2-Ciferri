@@ -704,7 +704,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
 void insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
     if(filename != NULL && reg != NULL){
         FILE *fp = fopen(filename, "r+");
-        int pos, offset, remSize, regSize, head;
+        int pos, offset, remSize = 0, regSize, head;
         char aux;
 
         fseek(fp, 0, SEEK_END);
@@ -723,61 +723,60 @@ void insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex)
         offset = head;
 
         if(offset != -1){
-            fseek(fp, offset, SEEK_SET);
+            fseek(fp, head, SEEK_SET);
             fread(&aux, sizeof(char), 1, fp);
+            fread(&offset, sizeof(int), 1, fp);
             fread(&remSize, sizeof(int), 1, fp);
 
-            fseek(fp, offset, SEEK_SET);
+            offset = head;
+            fseek(fp, head, SEEK_SET);
         }
 
         /*Laço que acha a posiçao de inserçao*/
         pos = fim;
-        while(offset != -1 && regSize < remSize){
-            pos = ftell(fp);
+        while(offset != -1 && (regSize != remSize || regSize+3*sizeof(char) > remSize)){
+            pos = offset;
 
             fread(&aux, sizeof(char), 1, fp);
             fread(&offset, sizeof(int), 1, fp);
             fread(&remSize, sizeof(int), 1, fp);
 
-            fseek(fp, offset, SEEK_SET);
+            if(offset != -1)
+                fseek(fp, offset, SEEK_SET);
         }
 
-        if(regSize < remSize)
+        if(regSize > remSize)
             pos = fim;
 
         writeReg(fp, reg);
 
         int size = remSize - regSize;
         char remChar = '*';
+        char delim = '#';
 
-        if(size >= (sizeof(char) + 2*sizeof(int))){
+        if(size >= (3*sizeof(char) + 2*sizeof(int)) && size > 0){
             int newpos = ftell(fp);
             fwrite(&remChar, sizeof(char), 1, fp);
             fwrite(&head, sizeof(int), 1, fp);
             fwrite(&size, sizeof(int), 1, fp);
 
+            fseek(fp, (size - 3*sizeof(char) - 2*sizeof(int)), SEEK_CUR);
+            fwrite(&delim, sizeof(char), 1, fp);
+            fwrite(&delim, sizeof(char), 1, fp);
+
             fseek(fp, 0 ,SEEK_SET);
             fwrite(&newpos, sizeof(int), 1, fp);
         }
-        else if(size >= 3*sizeof(char)){
-            char delim = '#';
+        else if(size > 0){
 
             fwrite(&remChar, sizeof(char), 1,fp);
             fseek(fp, size - 2, SEEK_CUR);
             fwrite(&delim, sizeof(char), 1, fp);
             fwrite(&delim, sizeof(char), 1, fp);
         }
-        else{
-            //Nao sei tratar
-        }
 
         /*Inserçao no indice*/
-        (*nIndex)++;
-        *index = (INDEX**) realloc(*index, sizeof(INDEX) * (*nIndex + 1));
-        (*index)[*nIndex] = criar_index();
-        (*index)[*nIndex]->ticket = reg->ticket;
-        (*index)[*nIndex]->byteOffset = pos;
-        heap_sort(*index, *nIndex);
+        add_to_index(index, nIndex,reg->ticket, pos);
 
     }
 }

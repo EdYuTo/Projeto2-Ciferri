@@ -101,19 +101,6 @@ int main(int argc, char *argv[]){
 				if(indexW == NULL)
 					indexW = read_index_file("worst.bin", &nw);
 
-				REG*reg = criar_registro();
-				reg->ticket = 999998;
-				reg->dominio = malloc(sizeof(char));
-				reg->dominio[0] = '\0';
-				reg->cidade = malloc(sizeof(char));
-				reg->cidade[0] = '\0';
-				reg->nome = malloc(sizeof(char));
-				reg->nome[0] = '\0';
-				reg->uf = malloc(sizeof(char));
-				reg->uf[0] = '\0';
-
-				insert_reg_first_fit("first.bin", reg, &indexF, &nf);
-
 			//...
 				printOpt();
 				break;
