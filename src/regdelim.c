@@ -183,7 +183,7 @@ REG *read_register(FILE *fp){
    fread(&delim, sizeof(char), 1, fp);
 
    /*se o registro for marcado como removido ele eh pulado*/
-   if (delim == '*' || delim == '!') {
+   while (delim == '*' || delim == '!') {
       while (n_delim < 2) {
          fread(&delim, sizeof(char), 1, fp);
 
@@ -192,7 +192,8 @@ REG *read_register(FILE *fp){
          else if (n_delim > 0)
             n_delim = 0;
       }
-      return NULL;
+      fread(&delim, sizeof(char), 1, fp);
+       n_delim = 0;
    }
 
    r = criar_registro();
@@ -733,7 +734,7 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
 
         /*Laço que acha a posiçao de inserçao*/
         pos = fim;
-        while(offset != -1 && (regSize != remSize || regSize+3*sizeof(char) > remSize)){
+        while(offset != -1 && regSize+3*sizeof(char) > remSize){
             pos = offset;
 
             fread(&aux, sizeof(char), 1, fp);
@@ -744,7 +745,7 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
                 fseek(fp, offset, SEEK_SET);
         }
 
-        if(regSize > remSize)
+        if(regSize+3*sizeof(char) > remSize)
             pos = fim;
 
         writeReg(fp, reg);
