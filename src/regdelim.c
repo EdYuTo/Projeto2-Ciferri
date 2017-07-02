@@ -621,13 +621,11 @@ int reg_Size(REG *reg) {
       tam += strlen(reg->nome)+1;   //|
       tam += strlen(reg->cidade)+1; //|
       tam += strlen(reg->uf)+1;     //|_-> + caracter '\0'
-      tam += 4;//ticket
-      if (reg->doc[0] != '\0')
-         tam += 20; //tam fixo
-      if (reg->dataHoraCadastro[0] != '\0')
-         tam += 20; //tam fixo
-      if (reg->dataHoraAtualiza[0] != '\0')
-         tam += 20; //tam fixo
+      tam += sizeof(int);//ticket
+       tam += 20 * sizeof(char); //tam fixo
+       tam += 20 * sizeof(char); //tam fixo
+       tam += 20 * sizeof(char); //tam fixo
+       tam += 20 * sizeof(char); //tam fixo
       return tam;
    }
    return -1;//erro
