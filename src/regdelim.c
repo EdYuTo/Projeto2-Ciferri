@@ -778,5 +778,7 @@ void insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex)
         /*Inserçao no indice*/
         add_to_index(index, nIndex,reg->ticket, pos);
 
+        fclose(fp);
+
     }
 }
