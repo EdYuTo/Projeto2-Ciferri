@@ -691,11 +691,11 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             /*se o espaco restante for suficiente para armazenar char + int + int*/
             if (rest > 8) {
                fwrite(&mark, sizeof(char), 1, fp);//escreve o *
-/*------------->ainda precisa ordenar na lista*/
+               /*------------->ainda precisa ordenar na lista*/
                fwrite(&newOffset, sizeof(int), 1, fp);//escreve o offset da lista de removidos
                fwrite(&rest, sizeof(int), 1, fp);//insere o tamanho
 
-            /*se o espaco nao for suficiente, insere ! para indicar*/
+               /*se o espaco nao for suficiente, insere ! para indicar*/
             } else
                fwrite(&useless, sizeof(char), 1, fp);
 
@@ -703,7 +703,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             fseek(fp, 0, SEEK_SET);
             fwrite(&offset, sizeof(int), 1, fp);
 
-         /*se nao couber vai para o final*/
+            /*se nao couber vai para o final*/
          } else {
             fseek(fp, 0, SEEK_END);//vai para o fim
             add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona nos indices
