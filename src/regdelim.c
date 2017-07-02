@@ -269,13 +269,13 @@ void read_out_delim(char *name) {
     /* ignorando o cabecalho */
     fread(&ticket, sizeof(int), 1, fp);
     
-    printf("Digite ENTER para comecar a impressão ou ctrl+D para sair");
+    printf("Digite ENTER para comecar a impressão ou ctrl+D para sair\n");
     while (ftell(fp) < filesize && fgetc(stdin) != EOF) {
         r = read_register(fp);
         imprimir_registro(r);
         apagar_registro(&r);
 
-        printf("Digite ENTER para continuar a impressão ou ctrl+D para sair");
+        printf("Digite ENTER para continuar a impressão ou ctrl+D para sair\n");
     }
 
     fclose(fp);
