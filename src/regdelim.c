@@ -701,7 +701,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
    return 0;//erro
 }
 
-void insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
+int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex){
     if(filename != NULL && reg != NULL){
         FILE *fp = fopen(filename, "r+");
         int pos, offset, remSize = 0, regSize, head;
@@ -712,8 +712,10 @@ void insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex)
         fseek(fp, 0, SEEK_SET);
 
         int search = binary_search(*index, reg->ticket, 0, *nIndex);
-        if(search != -1)
-            return;
+        if(search != -1){
+            printf("Ticket ja existe no aquivo de dados!\n");
+            return 0;
+        }
 
         /*Tamanho do registro*/
         regSize = reg_Size(reg);
@@ -780,5 +782,6 @@ void insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex)
 
         fclose(fp);
 
+        return 1;
     }
 }

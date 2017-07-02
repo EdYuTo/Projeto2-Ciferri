@@ -102,8 +102,8 @@ int main(int argc, char *argv[]){
 					indexW = read_index_file("worst.bin", &nw);
 				REG *reg = le_registro();
 
-				insert_reg_first_fit("first.bin", reg, &indexF, &nf);
-				insert_worstFit("worst.bin", &indexW, &nw, reg);
+				insert_reg_first_fit("first.bin", reg, &indexF, &nf) ? printf("Registro inserido com sucesso em first.bin!\n") : printf("Erro ao inserir o registro em first.bin!\n");
+				insert_worstFit("worst.bin", &indexW, &nw, reg) ? printf("Registro inserido com sucesso em worst.bin!\n") : printf("Erro ao inserir o registro em worst.bin!\n");
 			//...
 				printOpt();
 				break;
