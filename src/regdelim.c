@@ -870,89 +870,88 @@ void rearrange(FILE *fp, int old_offset, int new_offset) {
     fseek(fp, temp, SEEK_SET);
 }
 
-void insert_best_fit(REG *r, INDEX ***indices, int *indSize, char *filename) {
+int insert_best_fit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
 
-    FILE *fp_bin = fopen(filename, "r+");
-    int rec_size = 64 + 4*(sizeof(int)) + strlen(r->dominio) + 
-    strlen(r->nome) + strlen(r->cidade) + strlen(r->uf);
-    int tam = INT_MAX;
-    int next;
-    char c;
-    int filesize;
-    const char removed = '*';
-    const char delim = '#';
+   FILE *fp = fopen(file_bin, "r+");
+   if (fp && newreg != NULL) {//se forem validos
+      int offset;
+      fread(&offset, sizeof(int), 1, fp);//ler cabecalho
+      /*se o cabecario for negativo, insere-se no final*/
+      if (offset < 0) {
+         fseek(fp, 0, SEEK_END);//vai ate o final
+         add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona um indice
+         writeReg(fp, newreg);//escreve no final
+      } else {
+         fseek(fp, offset, SEEK_SET);
+         char c;
+         int regSize, fit = 0;
 
-    fseek(fp_bin, 0, SEEK_END);
-    filesize = ftell(fp_bin);
-    fseek(fp_bin, 0, SEEK_SET);
+         /*por definicao, se ha um * existe ao menos 9 bytes, entao existe byteoffset e tam*/
+         fread(&c, sizeof(char), 1, fp);
+         if (c == '*')
+            fit = 1;//pode ser inserido nessa posicao
+         fread(&offset, sizeof(int), 1, fp);
+         fread(&regSize, sizeof(int), 1, fp);
 
-    printf("Rec Size: %d\n", rec_size);
+         /*se couber insere-se nessa posicao*/
+         if (fit && regSize > reg_Size(newreg)+18) {//indicadores de tamanho!
+            int pos = ftell(fp);
+            fseek(fp, 0, SEEK_SET);
+            fwrite(&offset, sizeof(int), 1, fp);
+            fseek(fp, pos, SEEK_SET);
 
-    fread(&next, sizeof(int), 1, fp_bin);
-    printf("Cabeçalho: %d\n", next);
+            fseek(fp, -9, SEEK_CUR);//volta os 9 bytes lidos acima
+            add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona o indice
+            writeReg(fp, newreg);//escreve na posicao
+            int newOffset = ftell(fp);//pos atual
+            char useless = '!', mark = '*';//chars predeterminados
+            int rest = regSize - reg_Size(newreg)-18;//tamanho restante ate o prox registro
+            int ant = -1;
+            /*se o espaco restante for suficiente para armazenar char + int + int*/
+            if (rest > 8) {
+               /*Procura a posiçao de inserçao na lista*/
+               while (offset != -1 && rest > regSize){
+                  fseek(fp, offset, SEEK_SET);
+                  ant = ftell(fp);
+                  fread(&c, sizeof(char), 1, fp);
+                  fread(&offset, sizeof(int), 1, fp);
+                  fread(&regSize, sizeof(int), 1, fp);
+               }
 
-    while (next != -1) {
-        fseek(fp_bin, next, SEEK_SET);
-        fread(&c, sizeof(char), 1, fp_bin);
-        fread(&next, sizeof(int), 1, fp_bin);
-        fread(&tam, sizeof(int), 1, fp_bin);
-        if (tam - rec_size == 0 || tam - rec_size > 3) break;
-        printf("Aqui?\n");
-    }
-    printf("Saiu\n");
+               fseek(fp, newOffset, SEEK_SET);
 
-    fseek(fp_bin, -(sizeof(char)+2*sizeof(int)), SEEK_CUR);
-    int old_offset = ftell(fp_bin);
+               /* marca como removido, marca o offset do
+                  ultimo registro removido e o tamanho do registro
+                  recem removido */
+               fwrite(&mark, sizeof(char), 1, fp);
+               fwrite(&offset, sizeof(int), 1, fp);
+               fwrite(&rest, sizeof(int), 1, fp);
 
-    printf("Tam - Rec_size = %d\tNext: %d\n", tam-rec_size, next);
+               /*Insere o registro na lista de registros removidos*/
+               if(ant != -1) {
+                  fseek(fp, ant, SEEK_SET);
+                  fread(&c, sizeof(char), 1, fp);
+                  fwrite(&newOffset, sizeof(int), 1, fp);
+               }
+               /* escreve o offset no cabeçalho se necessario*/
+               else{
+                  fseek(fp, 0, SEEK_SET);
+                  fwrite(&newOffset, sizeof(int), 1, fp);
+               }
 
-    if ((tam - rec_size) == 0) {
-        printf("Inserindo em cima justinho\n");
-        writeReg(fp_bin, r);
-        printf("1\n");
-        rearrange(fp_bin, old_offset, next);
-        printf("2\n");
-        add_to_index(indices, indSize, r->ticket, old_offset);
-        printf("3\n");
-    }
+            /*se o espaco nao for suficiente, insere ! para indicar*/
+            } else
+               fwrite(&useless, sizeof(char), 1, fp);
 
-    else if (tam - rec_size < 3*(sizeof(char)) || next == -1) {
-        // insere no fim do arquivo
-        fseek(fp_bin, 0, SEEK_END);
-        writeReg(fp_bin, r);
-        add_to_index(indices, indSize, r->ticket, old_offset);
-    }
-
-    else if (tam - rec_size < 3*sizeof(char)+2*(sizeof(int))){
-        // insere normal
-        // coloca só o delimitador e asterisco depois
-        printf("Inserindo com fragmentação\n");
-        writeReg(fp_bin, r);
-        printf("1\n");
-        fwrite(&removed, sizeof(char), 1, fp_bin);
-        printf("2\n");
-        rearrange(fp_bin, old_offset, next);
-        printf("3\n");
-        add_to_index(indices, indSize, r->ticket, old_offset);
-    }
-
-    else {
-        printf("Inserindo normal");
-        // insere normal
-        writeReg(fp_bin,r);
-        
-        int new_offset = ftell(fp_bin);
-        tam = record_size(fp_bin, new_offset);
-        
-        fwrite(&removed, sizeof(char), 1, fp_bin);
-        fwrite(&next, sizeof(int), 1, fp_bin);
-        fwrite(&tam, sizeof(int), 1, fp_bin);
-
-        rearrange(fp_bin, old_offset, new_offset);
-
-        // adiciona na lista de indices
-        add_to_index(indices, indSize, r->ticket, old_offset);
-        
-        // ordenar
-    }
+         /*se nao couber vai para o final*/
+         } else {
+            fseek(fp, 0, SEEK_END);//vai para o fim
+            add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona nos indices
+            writeReg(fp, newreg);//escreve no fim
+         }
+      }
+      fclose(fp);
+      return 1;//sucesso
+   }
+   return 0;//erro
 }

@@ -48,6 +48,7 @@ int main(int argc, char *argv[]){
 	printOpt();
 
 	while(opt != 'S'){
+		__fpurge(stdin);
 		scanf("%c", &opt);
 		opt = toupper(opt);
 		getchar();
@@ -105,6 +106,7 @@ int main(int argc, char *argv[]){
 
 				insert_reg_first_fit("first.bin", reg, &indexF, &nf) ? printf("Registro inserido com sucesso em first.bin!\n") : printf("Erro ao inserir o registro em first.bin!\n");
 				insert_worstFit("worst.bin", &indexW, &nw, reg) ? printf("Registro inserido com sucesso em worst.bin!\n") : printf("Erro ao inserir o registro em worst.bin!\n");
+				insert_best_fit("best.bin", &indexB, &nb, reg) ? printf("Registro inserido com sucesso em best.bin!\n") : printf("Erro ao inserir o registro em best.bin!\n");
 			//...
 				printOpt();
 				break;

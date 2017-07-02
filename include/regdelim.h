@@ -15,6 +15,6 @@ int insert_reg_first_fit(char *filename, REG *reg, INDEX ***index, int* nIndex);
 
 void show_list(char *filename);
 
-void insert_best_fit(REG *r, INDEX ***indices, int *indSize, char *filename);
+int insert_best_fit(char *file_bin, INDEX ***index, int *indSize, REG *newreg);
 
 #endif
