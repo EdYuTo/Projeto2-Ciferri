@@ -100,7 +100,10 @@ int main(int argc, char *argv[]){
 					indexF = read_index_file("first.bin", &nf);
 				if(indexW == NULL)
 					indexW = read_index_file("worst.bin", &nw);
+				REG *reg = le_registro();
 
+				insert_reg_first_fit("first.bin", reg, &indexF, &nf);
+				insert_worstFit("worst.bin", &indexW, &nw, reg);
 			//...
 				printOpt();
 				break;

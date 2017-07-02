@@ -321,25 +321,28 @@ REG *le_registro() {
     REG *r = criar_registro();
 
     printf("Digite o domínio: ");
-    r->dominio = readLine(stdin, "\n");
+    r->dominio = readLine(stdin, '\n');
 
     printf("Digite o documento: ");
-    r->doc = readLine(stdin, "\n");
+    char *doc = readLine(stdin, '\n');
+    strtoarr(doc, r->doc, 20);
 
     printf("Digite o nome: ");
-    r->nome = readLine(stdin, "\n");
+    r->nome = readLine(stdin, '\n');
 
     printf("Digite a cidade: ");
-    r->cidade = readLine(stdin, "\n");
+    r->cidade = readLine(stdin, '\n');
 
     printf("Digite a UF: ");
-    r->uf = readLine(stdin, "\n");
+    r->uf = readLine(stdin, '\n');
 
     printf("Digite a DataHoraCadastro: ");
-    r->dataHoraCadastro = readLine(stdin, "\n");
+    char *dataHoraCadastro = readLine(stdin, '\n');
+    strtoarr(dataHoraCadastro, r->dataHoraCadastro, 20);
 
     printf("Digite a DataHoraAtualiza: ");
-    r->dataHoraAtualiza = readLine(stdin, "\n");
+    char *dataHoraAtualiza = readLine(stdin, '\n');
+    strtoarr(dataHoraAtualiza, r->dataHoraAtualiza, 20);
 
     printf("Digite o ticket: ");
     scanf("%d", &(r->ticket));
