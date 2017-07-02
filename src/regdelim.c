@@ -678,7 +678,7 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             fit = 1;//pode ser inserido nessa posicao
          fread(&offset, sizeof(int), 1, fp);
          fread(&regSize, sizeof(int), 1, fp);
-
+         
          /*se couber insere-se nessa posicao*/
          if (fit && regSize > reg_Size(newreg)+18) {//indicadores de tamanho!
             fseek(fp, -9, SEEK_CUR);//volta os 9 bytes lidos acima
@@ -687,23 +687,44 @@ int insert_worstFit(char *file_bin, INDEX ***index, int *indSize, REG *newreg) {
             int newOffset = ftell(fp);//pos atual
             char useless = '!', mark = '*';//chars predeterminados
             int rest = regSize - reg_Size(newreg)-18;//tamanho restante ate o prox registro
-
+            int ant = -1;
             /*se o espaco restante for suficiente para armazenar char + int + int*/
             if (rest > 8) {
-               fwrite(&mark, sizeof(char), 1, fp);//escreve o *
-               /*------------->ainda precisa ordenar na lista*/
-               fwrite(&newOffset, sizeof(int), 1, fp);//escreve o offset da lista de removidos
-               fwrite(&rest, sizeof(int), 1, fp);//insere o tamanho
+               /*Procura a posiçao de inserçao na lista*/
+               while (offset != -1 && rest < regSize){
+                  fseek(fp, offset, SEEK_SET);
+                  ant = ftell(fp);
+                  fread(&c, sizeof(char), 1, fp);
+                  fread(&offset, sizeof(int), 1, fp);
+                  fread(&regSize, sizeof(int), 1, fp);
+               }
 
-               /*se o espaco nao for suficiente, insere ! para indicar*/
+               fseek(fp, newOffset, SEEK_SET);
+
+               /* marca como removido, marca o offset do
+                  ultimo registro removido e o tamanho do registro
+                  recem removido */
+               fwrite(&mark, sizeof(char), 1, fp);
+               fwrite(&offset, sizeof(int), 1, fp);
+               fwrite(&rest, sizeof(int), 1, fp);
+
+               /*Insere o registro na lista de registros removidos*/
+               if(ant != -1) {
+                  fseek(fp, ant, SEEK_SET);
+                  fread(&c, sizeof(char), 1, fp);
+                  fwrite(&newOffset, sizeof(int), 1, fp);
+               }
+               /* escreve o offset no cabeçalho se necessario*/
+               else{
+                  fseek(fp, 0, SEEK_SET);
+                  fwrite(&newOffset, sizeof(int), 1, fp);
+               }
+
+            /*se o espaco nao for suficiente, insere ! para indicar*/
             } else
                fwrite(&useless, sizeof(char), 1, fp);
 
-            /*volta para o comeco e altera o cabecalho*/
-            fseek(fp, 0, SEEK_SET);
-            fwrite(&offset, sizeof(int), 1, fp);
-
-            /*se nao couber vai para o final*/
+         /*se nao couber vai para o final*/
          } else {
             fseek(fp, 0, SEEK_END);//vai para o fim
             add_to_index(index, indSize, newreg->ticket, ftell(fp));//adiciona nos indices
