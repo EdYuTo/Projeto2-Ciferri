@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdio_ext.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -83,7 +84,7 @@ int main(int argc, char *argv[]){
 
 				printf("\nIndique o valor do Ticket correspondente ao registro que deseja remover\n");
 				ticket = -1;
-				while(ticket < 0){
+				while(ticket < 0){ //Tratamento de tickets negativos(inválidos)
 					scanf("%d", &ticket);
 					getchar();
 					if(ticket < 0) printf("\nERRO: Digite um valor positivo\n");
@@ -107,7 +108,7 @@ int main(int argc, char *argv[]){
 				insert_reg_first_fit("first.bin", reg, &indexF, &nf) ? printf("Registro inserido com sucesso em first.bin!\n") : printf("Erro ao inserir o registro em first.bin!\n");
 				insert_worstFit("worst.bin", &indexW, &nw, reg) ? printf("Registro inserido com sucesso em worst.bin!\n") : printf("Erro ao inserir o registro em worst.bin!\n");
 				insert_best_fit("best.bin", &indexB, &nb, reg) ? printf("Registro inserido com sucesso em best.bin!\n") : printf("Erro ao inserir o registro em best.bin!\n");
-			//...
+	
 				printOpt();
 				break;
 			case 'V': //Estatísticas dos índices
@@ -119,7 +120,7 @@ int main(int argc, char *argv[]){
 					indexW = read_index_file("worst.bin", &nw);
 
 				show_indices(indexF, indexB, indexW, nf, nb, nw);
-			//...
+			
 				printOpt();
 				break;
 			case 'E': //Estatísticas dos registros
@@ -136,7 +137,7 @@ int main(int argc, char *argv[]){
 					show_list("best.bin");
 				else if(opt2 == 'W')
 					show_list("worst.bin");
-
+				else printf("ERRO: Operação inválida, digite ENTER para voltar para o menu principal.\n");
 				getchar();
 				printOpt();
 				break;
@@ -155,7 +156,7 @@ int main(int argc, char *argv[]){
 					read_out_delim("best.bin");
 				else if(opt3 == 'W')
 					read_out_delim("first.bin");
-				
+				else printf("ERRO: Operação inválida, voltando para o menu principal.\n");
 				printOpt();
 				break;
 
