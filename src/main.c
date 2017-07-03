@@ -10,7 +10,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -58,7 +57,7 @@ int main(int argc, char *argv[]){
 			case 'G': //Gravação dos dados nos 3 arquivos de saída com seus respectivos índices
 				if(fopen("best.bin", "rb") == NULL){ //Checa se os arquivos já foram criados
 					read_csv_delim();
-					create_index_file("first.bin") ? printf("Indice FIRST criado com sucesso!\n") : printf("ERRO: Indice FIRST não foi criado\n");
+					create_index_file("first.bin") ? printf("\nIndice FIRST criado com sucesso!\n") : printf("\nERRO: Indice FIRST não foi criado\n");
 					create_index_file("best.bin") ? printf("Indice BEST criado com sucesso!\n") : printf("ERRO: Indice BEST não foi criado\n"); 
 					create_index_file("worst.bin") ? printf("Indice WORST criado com sucesso!\n") : printf("ERRO: Indice WORST não foi criado\n");
 
@@ -84,13 +83,13 @@ int main(int argc, char *argv[]){
 
 				printf("\nIndique o valor do Ticket correspondente ao registro que deseja remover\n");
 				ticket = -1;
-				while(ticket < 0){ //Tratamento de tickets negativos(inválidos)
+				while(ticket < 0){
 					scanf("%d", &ticket);
 					getchar();
 					if(ticket < 0) printf("\nERRO: Digite um valor positivo\n");
 				}
 
-				remove_record_no_sort(ticket, "first.bin", &indexF, &nf) ? printf("Removido de FIRST com sucesso!\n") : printf("ERRO na remoção de FIRST\n");
+				remove_record_no_sort(ticket, "first.bin", &indexF, &nf) ? printf("\nRemovido de FIRST com sucesso!\n") : printf("\nERRO na remoção de FIRST\n");
 				remove_record_ascending_sort(ticket, "best.bin", &indexB, &nb)  ? printf("Removido de BEST com sucesso!\n") : printf("ERRO na remoção de BEST\n");;
 				remove_record_descending_sort(ticket, "worst.bin", &indexW, &nw)  ? printf("Removido de WORST com sucesso!\n") : printf("ERRO na remoção de WORST\n");;
 
@@ -105,10 +104,10 @@ int main(int argc, char *argv[]){
 					indexW = read_index_file("worst.bin", &nw);
 				REG *reg = le_registro();
 
-				insert_reg_first_fit("first.bin", reg, &indexF, &nf) ? printf("Registro inserido com sucesso em first.bin!\n") : printf("Erro ao inserir o registro em first.bin!\n");
+				insert_reg_first_fit("first.bin", reg, &indexF, &nf) ? printf("\nRegistro inserido com sucesso em first.bin!\n") : printf("\nErro ao inserir o registro em first.bin!\n");
 				insert_worstFit("worst.bin", &indexW, &nw, reg) ? printf("Registro inserido com sucesso em worst.bin!\n") : printf("Erro ao inserir o registro em worst.bin!\n");
 				insert_best_fit("best.bin", &indexB, &nb, reg) ? printf("Registro inserido com sucesso em best.bin!\n") : printf("Erro ao inserir o registro em best.bin!\n");
-	
+			//...
 				printOpt();
 				break;
 			case 'V': //Estatísticas dos índices
@@ -120,7 +119,7 @@ int main(int argc, char *argv[]){
 					indexW = read_index_file("worst.bin", &nw);
 
 				show_indices(indexF, indexB, indexW, nf, nb, nw);
-			
+			//...
 				printOpt();
 				break;
 			case 'E': //Estatísticas dos registros
@@ -137,7 +136,7 @@ int main(int argc, char *argv[]){
 					show_list("best.bin");
 				else if(opt2 == 'W')
 					show_list("worst.bin");
-				else printf("ERRO: Operação inválida, digite ENTER para voltar para o menu principal.\n");
+
 				getchar();
 				printOpt();
 				break;
@@ -156,7 +155,7 @@ int main(int argc, char *argv[]){
 					read_out_delim("best.bin");
 				else if(opt3 == 'W')
 					read_out_delim("first.bin");
-				else printf("ERRO: Operação inválida, voltando para o menu principal.\n");
+				
 				printOpt();
 				break;
 

@@ -349,8 +349,6 @@ int remove_record_no_sort(int ticket, char *file_bin, INDEX ***vector, int *size
         fclose(fp_bin);
         return 0;
     }
-    
-    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
 
     /* tamanho do registro a ser removido */
     rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
@@ -400,8 +398,6 @@ int remove_record_ascending_sort(int ticket, char *file_bin, INDEX ***vector, in
         fclose(fp_bin);
         return 0;
     }
-
-    printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
     
     /* tamanho do registro a ser removido */
     rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);
@@ -483,8 +479,6 @@ int remove_record_descending_sort(int ticket, char *file_bin, INDEX ***vector, i
       fclose(fp_bin);
       return 0;
    }
-
-   printf("Resultado-> Ticket: %d\t Offset: %d\n", (*vector)[result]->ticket, (*vector)[result]->byteOffset);
 
    /* tamanho do registro a ser removido */
    rec_size = record_size(fp_bin, (*vector)[result]->byteOffset);

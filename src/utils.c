@@ -329,12 +329,15 @@ REG *le_registro() {
 
     printf("Digite o nome: ");
     r->nome = readLine(stdin, '\n');
+    tira_acento_terminal(r->nome);
 
     printf("Digite a cidade: ");
     r->cidade = readLine(stdin, '\n');
+    tira_acento_terminal(r->cidade);
 
     printf("Digite a UF: ");
     r->uf = readLine(stdin, '\n');
+    tira_acento_terminal(r->uf);
 
     printf("Digite a DataHoraCadastro: ");
     char *dataHoraCadastro = readLine(stdin, '\n');
